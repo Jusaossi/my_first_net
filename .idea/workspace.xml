@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3afefdde-9a60-4ece-86d5-250fc97984f8" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/Runmanagerclass.py" beforeDir="false" afterPath="$PROJECT_DIR$/Runmanagerclass.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/teeth_net.py" beforeDir="false" afterPath="$PROJECT_DIR$/teeth_net.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

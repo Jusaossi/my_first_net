@@ -47,7 +47,7 @@ elif machine == 'siiri-desktop':
     card = 'cuda'
 else:
     my_parent_dir = os.path.dirname(os.getcwd())
-    my_save_path = os.path.join(my_parent_dir, 'teeth_net/results')
+    #my_save_path = os.path.join(my_parent_dir, 'teeth_net/results')
     # save_file = os.path.join(my_save_path, time_str + '_Teeth_net_results')
     # save_file_new = os.path.join(my_save_path, time_str + '_Teeth_net_results_train_batch.csv')
     # save_file_new_2 = os.path.join(my_save_path, time_str + '_Teeth_net_results_test_batch.csv')
