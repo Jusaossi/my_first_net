@@ -3,7 +3,7 @@ import time
 import numpy as np
 import torch.optim as optim
 import u_net_versions
-import my_loss_classes # import MyBceLOSS, MyWeightedBceLOSS
+import my_loss_classes  # import MyBceLOSS, MyWeightedBceLOSS
 from collections import OrderedDict
 from runbuilderclass import RunBuilder
 from Runmanagerclass import RunManager
@@ -23,50 +23,52 @@ time_str = time.strftime("%Y-%m-%d_%H-%M")
 # data_folders = ['data', 'data_new', 'data_teeth']   scale=['[0,1]', '[-1,1]']  (1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 0), (1, 0, 1), (0, 1, 1)
 # --------------------------------------------------------------------variables for runs------------------------------
 test_train_split = 5   # 20 % for test, loss_weight=[0.5, 0.9], loss_gamma=[0.5, 1, 2, 5]
-epoch_numbers = 4
+epoch_numbers = 1
 params = OrderedDict(data=['data'], unet=['UNetQuarter'], scale=['[0,1]'],
                      albu_prob=[(1, 1, 1)],
-                     loss=['MyDiceLoss'], lr=[0.001, 0.0005, 0.0001])
+                     loss=['MyDiceLoss'], lr=[0.001, 0.0005])
 # ----------------------------------------------------------------------------------------------------------------------
-
+albu = False
+# ---------------------------------------------------------------------------------------------------------------------
 if machine == 'DESKTOP-K3R0DFP':
     my_parent_dir = r'C:\Users\jpkorpel\PycharmProjects\uusi_sika'
-    my_save_path = r'C:\Users\jpkorpel\PycharmProjects\uusi_sika\teeth_net\results'
-    save_file = os.path.join(my_save_path, time_str + '_Teeth_net_results')
-    save_file_new = os.path.join(my_save_path, time_str + '_Teeth_net_results_train_batch.csv')
-    save_file_new_2 = os.path.join(my_save_path, time_str + '_Teeth_net_results_test_batch.csv')
+    my_parent_dir_2 = r'C:\Users\jpkorpel\PycharmProjects'
+    # my_save_path = r'C:\Users\jpkorpel\PycharmProjects\uusi_sika\teeth_net\results'
+    # save_file = os.path.join(my_save_path, time_str + '_Teeth_net_results')
+    # save_file_new = os.path.join(my_save_path, time_str + '_Teeth_net_results_train_batch.csv')
+    # save_file_new_2 = os.path.join(my_save_path, time_str + '_Teeth_net_results_test_batch.csv')
     card = 'cpu'
 elif machine == 'siiri-desktop':
     my_parent_dir = os.path.dirname(os.getcwd())
-    my_save_path = os.path.join(my_parent_dir, 'teeth_net/results')
-    save_file = os.path.join(my_save_path, time_str + '_Teeth_net_results')
-    save_file_new = os.path.join(my_save_path, time_str + '_Teeth_net_results_train_batch.csv')
-    save_file_new_2 = os.path.join(my_save_path, time_str + '_Teeth_net_results_test_batch.csv')
+    # my_save_path = os.path.join(my_parent_dir, 'teeth_net/results')
+    # save_file = os.path.join(my_save_path, time_str + '_Teeth_net_results')
+    # save_file_new = os.path.join(my_save_path, time_str + '_Teeth_net_results_train_batch.csv')
+    # save_file_new_2 = os.path.join(my_save_path, time_str + '_Teeth_net_results_test_batch.csv')
     card = 'cuda'
 else:
     my_parent_dir = os.path.dirname(os.getcwd())
     my_save_path = os.path.join(my_parent_dir, 'teeth_net/results')
-    save_file = os.path.join(my_save_path, time_str + '_Teeth_net_results')
-    save_file_new = os.path.join(my_save_path, time_str + '_Teeth_net_results_train_batch.csv')
-    save_file_new_2 = os.path.join(my_save_path, time_str + '_Teeth_net_results_test_batch.csv')
+    # save_file = os.path.join(my_save_path, time_str + '_Teeth_net_results')
+    # save_file_new = os.path.join(my_save_path, time_str + '_Teeth_net_results_train_batch.csv')
+    # save_file_new_2 = os.path.join(my_save_path, time_str + '_Teeth_net_results_test_batch.csv')
     card = 'cuda'
 
-header = ['Run', 'Unet', 'Loss_function', 'Epoch', 'Batch', 'Data_set', 'Patient', 'Slices', 'Lr', 'Batch_size', 'Train_Batch_Loss', 'Average_train_loss', 'Train_Batch_l1_loss',
-          'Average_Train_l1_loss', 'Train_Batch_correct_voxels', 'Train_Batch_all_voxels', 'Train_Epoch_correct_voxels', 'Train_Epoch_all_voxels', 'Train_Epoch_accuracy']
+# header = ['Run', 'Unet', 'Loss_function', 'Epoch', 'Batch', 'Data_set', 'Patient', 'Slices', 'Lr', 'Batch_size', 'Train_Batch_Loss', 'Average_train_loss', 'Train_Batch_l1_loss',
+#           'Average_Train_l1_loss', 'Train_Batch_correct_voxels', 'Train_Batch_all_voxels', 'Train_Epoch_correct_voxels', 'Train_Epoch_all_voxels', 'Train_Epoch_accuracy']
+#
+# header2 = ['Run', 'Unet', 'Loss_function', 'Epoch', 'Batch', 'Data_set', 'Patient', 'Slices', 'Lr', 'Batch_size', 'Test_Batch_Loss',
+#            'Test_Batch_l1_loss', 'Test_sum_Batch_correct', 'Test_sum_all_batch_voxels']
 
-header2 = ['Run', 'Unet', 'Loss_function', 'Epoch', 'Batch', 'Data_set', 'Patient', 'Slices', 'Lr', 'Batch_size', 'Test_Batch_Loss',
-           'Test_Batch_l1_loss', 'Test_sum_Batch_correct', 'Test_sum_all_batch_voxels']
 
-
-if not os.path.isfile(save_file_new):
-    with open(save_file_new, 'a', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(header)
-
-if not os.path.isfile(save_file_new_2):
-    with open(save_file_new_2, 'a', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(header2)
+# if not os.path.isfile(save_file_new):
+#     with open(save_file_new, 'a', newline='') as f:
+#         writer = csv.writer(f)
+#         writer.writerow(header)
+#
+# if not os.path.isfile(save_file_new_2):
+#     with open(save_file_new_2, 'a', newline='') as f:
+#         writer = csv.writer(f)
+#         writer.writerow(header2)
 
 
 device = torch.device(card)
@@ -83,8 +85,6 @@ for run in RunBuilder.get_runs(params):
     else:
         my_data_folder = 'teeth_net/' + run.data
         my_path = os.path.join(my_parent_dir, my_data_folder)
-
-    # print(my_path)
 
     np.random.seed(2020)
     runs_count += 1
@@ -117,12 +117,16 @@ for run in RunBuilder.get_runs(params):
             batch_count += 1
             #print('batch nro =', batch_count)
             #print('run.batch_size', run.batch_size)
-            if batch_count == 5:
+            if batch_count == 3 and machine == 'DESKTOP-K3R0DFP':
                 break
+
             images = load_my_image_batch(batch, train_dict, my_path, train_batch_size=1, normalize=run.scale)
             targets = load_my_target_batch(batch, train_dict, my_path, train_batch_size=1)
 
-            images, targets = my_data_albumentations(images, targets, run.albu_prob)
+            if albu:
+                images, targets = my_data_albumentations(images, targets, run.albu_prob)
+                print('albu megessä')
+
             images = torch.as_tensor(images, dtype=torch.float32)
             images = images.unsqueeze(1)
             images = images.to(device)
@@ -186,7 +190,7 @@ for run in RunBuilder.get_runs(params):
             test_patient = train_dict[test_batch][0]
             test_slices = train_dict[test_batch][1]
             test_count += 1
-            if test_count == 5:
+            if test_count == 3 and machine == 'DESKTOP-K3R0DFP':
                 break
             images = load_my_image_batch(test_batch, train_dict, my_path, test_batch_size, normalize='max')
             targets = load_my_target_batch(test_batch, train_dict, my_path, test_batch_size)
@@ -231,7 +235,7 @@ for run in RunBuilder.get_runs(params):
         manager.end_epoch()
 
     manager.end_run()
-manager.save(save_file)
+# manager.save(save_file)
 
 
 

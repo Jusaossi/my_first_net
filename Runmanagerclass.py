@@ -104,40 +104,40 @@ class RunManager:
         self.tb.add_scalar('Test_wrong_no_teeth_voxels', test_wrong_no_teeth_voxels, self.epoch_count)
         self.tb.add_scalar('Test_wrong_voxels', test_wrong_voxels, self.epoch_count)
 
-        results = OrderedDict()
-        results["run"] = self.run_count
-        results["epoch"] = self.epoch_count
-        results['Train_loss'] = loss_here
-        results['Test_loss'] = test_loss_here
-        results['Train_l1_loss'] = l1_loss_here
-        results['Test_l1_loss'] = test_l1_loss_here
-        results['Train_sum_correct_voxels'] = self.epoch_num_correct_teeth
-        results['Train_sum_all_teeth'] = self.epoch_num_all_teeth
-        results['Train_sum_correct_no_teeth_voxels'] = self.epoch_num_correct_no_teeth
-        results['Train_sum_all_no_teeth'] = self.epoch_num_all_no_teeth
-        results['Test_sum_correct_voxels'] = self.epoch_test_num_correct_teeth
-        results['Test_sum_all_teeth'] = self.epoch_test_num_all_teeth
-        results['Test_sum_correct_no_teeth_voxels'] = self.epoch_test_num_correct_no_teeth
-        results['Test_sum_all_no_teeth'] = self.epoch_test_num_all_no_teeth
-        results["train_accuracy"] = train_accuracy
-        results["test_accuracy"] = test_accuracy
-        results["train_accuracy_no_teeth"] = train_accuracy_no_teeth
-        results["test_accuracy_no_teeth"] = test_accuracy_no_teeth
-        results["train_wrong_teeth_voxels"] = train_wrong_teeth_voxels
-        results["train_wrong_no_teeth_voxels"] = train_wrong_no_teeth_voxels
-        results["train_wrong_voxels"] = train_wrong_voxels
-        results["test_wrong_teeth_voxels"] = test_wrong_teeth_voxels
-        results["test_wrong_no_teeth_voxels"] = test_wrong_no_teeth_voxels
-        results["test_wrong_voxels"] = test_wrong_voxels
-        results['epoch_duration'] = round(epoch_duration, 1)
-        results['run_duration'] = round(run_duration, 1)
-
-        for k, v in self.run_params._asdict().items():
-            results[k] = v
-        self.run_data.append(results)
-
-    def save(self, filename):
-        pd.DataFrame.from_dict(self.run_data, orient='columns').to_csv(f'{filename}.csv')
+    #     results = OrderedDict()
+    #     results["run"] = self.run_count
+    #     results["epoch"] = self.epoch_count
+    #     results['Train_loss'] = loss_here
+    #     results['Test_loss'] = test_loss_here
+    #     results['Train_l1_loss'] = l1_loss_here
+    #     results['Test_l1_loss'] = test_l1_loss_here
+    #     results['Train_sum_correct_voxels'] = self.epoch_num_correct_teeth
+    #     results['Train_sum_all_teeth'] = self.epoch_num_all_teeth
+    #     results['Train_sum_correct_no_teeth_voxels'] = self.epoch_num_correct_no_teeth
+    #     results['Train_sum_all_no_teeth'] = self.epoch_num_all_no_teeth
+    #     results['Test_sum_correct_voxels'] = self.epoch_test_num_correct_teeth
+    #     results['Test_sum_all_teeth'] = self.epoch_test_num_all_teeth
+    #     results['Test_sum_correct_no_teeth_voxels'] = self.epoch_test_num_correct_no_teeth
+    #     results['Test_sum_all_no_teeth'] = self.epoch_test_num_all_no_teeth
+    #     results["train_accuracy"] = train_accuracy
+    #     results["test_accuracy"] = test_accuracy
+    #     results["train_accuracy_no_teeth"] = train_accuracy_no_teeth
+    #     results["test_accuracy_no_teeth"] = test_accuracy_no_teeth
+    #     results["train_wrong_teeth_voxels"] = train_wrong_teeth_voxels
+    #     results["train_wrong_no_teeth_voxels"] = train_wrong_no_teeth_voxels
+    #     results["train_wrong_voxels"] = train_wrong_voxels
+    #     results["test_wrong_teeth_voxels"] = test_wrong_teeth_voxels
+    #     results["test_wrong_no_teeth_voxels"] = test_wrong_no_teeth_voxels
+    #     results["test_wrong_voxels"] = test_wrong_voxels
+    #     results['epoch_duration'] = round(epoch_duration, 1)
+    #     results['run_duration'] = round(run_duration, 1)
+    #
+    #     for k, v in self.run_params._asdict().items():
+    #         results[k] = v
+    #     self.run_data.append(results)
+    #
+    # def save(self, filename):
+    #     pd.DataFrame.from_dict(self.run_data, orient='columns').to_csv(f'{filename}.csv')
 
     def track_loss(self, loss_item):
         self.epoch_loss += loss_item
