@@ -3,9 +3,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-class MyDiceLoss(nn.Module):
+class MyDiceLoss2(nn.Module):
     def __init__(self, reduction='mean'):
-        super(MyDiceLoss, self).__init__()
+        super(MyDiceLoss2, self).__init__()
         self.reduction = reduction
 
     def forward(self, inputs, targets, smooth=1e-5):
@@ -17,6 +17,112 @@ class MyDiceLoss(nn.Module):
             return own_loss.sum()
         else:
             return own_loss.mean()
+
+
+class MyDiceLoss(nn.Module):
+    def __init__(self, weight=None, size_average=True):
+        super(MyDiceLoss, self).__init__()
+
+    def forward(self, inputs, targets, smooth=1):
+        # comment out if your model contains a sigmoid or equivalent activation layer
+        # inputs = F.sigmoid(inputs)
+
+        # flatten label and prediction tensors
+        inputs = inputs.view(-1)
+        targets = targets.view(-1)
+
+        intersection = (inputs * targets).sum()
+        dice = (2. * intersection + smooth) / (inputs.sum() + targets.sum() + smooth)
+
+        return 1 - dice
+
+
+class MyDiceBCELoss(nn.Module):
+    def __init__(self, weight=None, size_average=True):
+        super(MyDiceBCELoss, self).__init__()
+
+    def forward(self, inputs, targets, smooth=1):
+        # comment out if your model contains a sigmoid or equivalent activation layer
+        # inputs = F.sigmoid(inputs)
+
+        # flatten label and prediction tensors
+        inputs = inputs.view(-1)
+        targets = targets.view(-1)
+
+        intersection = (inputs * targets).sum()
+        dice_loss = 1 - (2. * intersection + smooth) / (inputs.sum() + targets.sum() + smooth)
+        BCE = F.binary_cross_entropy(inputs, targets, reduction='mean')
+        Dice_BCE = BCE + dice_loss
+
+        return Dice_BCE
+
+
+class MyIoULoss(nn.Module):
+    def __init__(self, weight=None, size_average=True):
+        super(MyIoULoss, self).__init__()
+
+    def forward(self, inputs, targets, smooth=1):
+        # comment out if your model contains a sigmoid or equivalent activation layer
+        # inputs = F.sigmoid(inputs)
+
+        # flatten label and prediction tensors
+        inputs = inputs.view(-1)
+        targets = targets.view(-1)
+
+        # intersection is equivalent to True Positive count
+        # union is the mutually inclusive area of all labels & predictions
+        intersection = (inputs * targets).sum()
+        total = (inputs + targets).sum()
+        union = total - intersection
+
+        IoU = (intersection + smooth) / (union + smooth)
+
+        return 1 - IoU
+
+
+class MyTverskyLoss(nn.Module):
+    def __init__(self, weight=None, size_average=True):
+        super(MyTverskyLoss, self).__init__()
+
+    def forward(self, inputs, targets, smooth=1, alpha=0.5, beta=2):
+        # comment out if your model contains a sigmoid or equivalent activation layer
+        # inputs = F.sigmoid(inputs)
+
+        # flatten label and prediction tensors
+        inputs = inputs.view(-1)
+        targets = targets.view(-1)
+
+        # True Positives, False Positives & False Negatives
+        TP = (inputs * targets).sum()
+        FP = ((1 - targets) * inputs).sum()
+        FN = (targets * (1 - inputs)).sum()
+
+        Tversky = (TP + smooth) / (TP + alpha * FP + beta * FN + smooth)
+
+        return 1 - Tversky
+
+
+class MyFocalTverskyLoss(nn.Module):
+    def __init__(self, weight=None, size_average=True):
+        super(MyFocalTverskyLoss, self).__init__()
+
+    def forward(self, inputs, targets, smooth=1, alpha=0.5, beta=1, gamma=1):
+        # comment out if your model contains a sigmoid or equivalent activation layer
+        # inputs = F.sigmoid(inputs)
+
+        # flatten label and prediction tensors
+        inputs = inputs.view(-1)
+        targets = targets.view(-1)
+
+        # True Positives, False Positives & False Negatives
+        TP = (inputs * targets).sum()
+        FP = ((1 - targets) * inputs).sum()
+        FN = (targets * (1 - inputs)).sum()
+
+        Tversky = (TP + smooth) / (TP + alpha * FP + beta * FN + smooth)
+        FocalTversky = (1 - Tversky) ** gamma
+
+        return FocalTversky
 
 
 class MyBceLOSS(nn.Module):

@@ -23,10 +23,10 @@ time_str = time.strftime("%Y-%m-%d_%H-%M")
 # data_folders = ['data', 'data_new', 'data_teeth']   scale=['[0,1]', '[-1,1]']  (1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 0), (1, 0, 1), (0, 1, 1)
 # --------------------------------------------------------------------variables for runs------------------------------
 test_train_split = 5   # 20 % for test, loss_weight=[0.5, 0.9], loss_gamma=[0.5, 1, 2, 5]
-epoch_numbers = 1
+epoch_numbers = 30
 params = OrderedDict(data=['data'], unet=['UNetQuarter'], scale=['[0,1]'],
                      albu_prob=[(1, 1, 1)],
-                     loss=['MyDiceLoss'], lr=[0.001, 0.0005])
+                     loss=['MyDiceLoss', 'MyDiceBCELoss', 'MyIoULoss', 'MyTverskyLoss', 'MyFocalTverskyLoss'], lr=[0.0005])
 # ----------------------------------------------------------------------------------------------------------------------
 albu = False
 # ---------------------------------------------------------------------------------------------------------------------
@@ -136,10 +136,10 @@ for run in RunBuilder.get_runs(params):
             targets = torch.as_tensor(targets, dtype=torch.float32)
             targets = targets.unsqueeze(1)
             targets = targets.to(device)
-            if run.loss == 'MyDiceLoss':
-                loss = loss_function(preds, targets)
-            else:
-                loss = loss_function(preds, targets, run.loss_weight, run.loss_gamma)
+            #if run.loss == 'MyDiceLoss':
+            loss = loss_function(preds, targets)
+            # else:
+            #    loss = loss_function(preds, targets, run.loss_weight, run.loss_gamma)
             print(loss)
 
             batch_loss = loss.item()
@@ -203,10 +203,10 @@ for run in RunBuilder.get_runs(params):
             targets = torch.as_tensor(targets, dtype=torch.float32)
             targets = targets.unsqueeze(1)
             targets = targets.to(device)
-            if run.loss == 'MyDiceLoss':
-                test_loss = loss_function(preds.detach(), targets.detach())
-            else:
-                test_loss = loss_function(preds.detach(), targets.detach(), run.loss_weight, run.loss_gamma)
+            # if run.loss == 'MyDiceLoss':
+            test_loss = loss_function(preds.detach(), targets.detach())
+            # else:
+            #    test_loss = loss_function(preds.detach(), targets.detach(), run.loss_weight, run.loss_gamma)
 
             test_epoch_loss += test_loss.item()
 
