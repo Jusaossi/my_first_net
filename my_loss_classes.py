@@ -206,7 +206,7 @@ class MyAlphaBalancedFocalLOSS(nn.Module):
         super(MyAlphaBalancedFocalLOSS, self).__init__()
         self.reduction = reduction
 
-    def forward(self, inputs, targets, alpha=0.5, gamma=2):
+    def forward(self, inputs, targets, alpha=0.5, gamma=1):
         mod_inputs = torch.add(1, - inputs)
         mod_targets = torch.add(1, - targets)
         mod_alpha = torch.add(1, - alpha)
@@ -225,7 +225,7 @@ class MyMixedLoss(nn.Module):
         super(MyMixedLoss, self).__init__()
         self.alpha = alpha
         self.complement_alpha = 1 - alpha
-        self.bce = MyBceLOSS()
+        self.bce = MyAlphaBalancedFocalLOSS()
         self.dice = MyDiceLoss()
 
     def forward(self, inputs, targets):

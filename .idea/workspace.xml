@@ -4,7 +4,6 @@
     <list default="true" id="3afefdde-9a60-4ece-86d5-250fc97984f8" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/my_loss_classes.py" beforeDir="false" afterPath="$PROJECT_DIR$/my_loss_classes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/teeth_net.py" beforeDir="false" afterPath="$PROJECT_DIR$/teeth_net.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -97,10 +96,10 @@
       <screen x="-1920" y="267" width="1920" height="1040" />
     </state>
     <state x="-1459" y="429" key="SettingsEditor/-1920.267.1920.1040/1920.267.1600.860/0.0.1920.1040@-1920.267.1920.1040" timestamp="1606303961849" />
-    <state x="655" y="344" key="com.intellij.ide.util.TipDialog" timestamp="1606397857370">
+    <state x="655" y="344" key="com.intellij.ide.util.TipDialog" timestamp="1606465565005">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="-1265" y="611" key="com.intellij.ide.util.TipDialog/-1920.267.1920.1040/1920.267.1600.860/0.0.1920.1040@-1920.267.1920.1040" timestamp="1606303932970" />
-    <state x="655" y="344" key="com.intellij.ide.util.TipDialog/-1920.267.1920.1040/1920.267.1600.860/0.0.1920.1040@0.0.1920.1040" timestamp="1606397857370" />
+    <state x="655" y="344" key="com.intellij.ide.util.TipDialog/-1920.267.1920.1040/1920.267.1600.860/0.0.1920.1040@0.0.1920.1040" timestamp="1606465565005" />
   </component>
 </project>
