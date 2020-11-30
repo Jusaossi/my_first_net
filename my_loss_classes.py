@@ -34,7 +34,7 @@ class MyDiceLoss(nn.Module):
         intersection = (inputs * targets).sum()
         dice = (2. * intersection + smooth) / (inputs.sum() + targets.sum() + smooth)
 
-        return 1 - dice
+        return - dice.log()
 
 
 class MyDiceBCELoss(nn.Module):
@@ -144,7 +144,7 @@ class MyFocalLOSS(nn.Module):
         super(MyFocalLOSS, self).__init__()
         self.reduction = reduction
 
-    def forward(self, inputs, targets, beta, gamma):
+    def forward(self, inputs, targets, beta=0.8, gamma=1):
         eps = 1e-12
         own_loss = -(beta * targets * (1-inputs).pow(gamma) * inputs.clamp(min=eps).log() + (1-beta) * (1 - targets) * inputs.pow(gamma) * (1 - inputs).clamp(min=eps).log())
         if self.reduction == 'sum':
@@ -225,7 +225,7 @@ class MyMixedLoss(nn.Module):
         super(MyMixedLoss, self).__init__()
         self.alpha = alpha
         self.complement_alpha = 1 - alpha
-        self.bce = MyAlphaBalancedFocalLOSS()
+        self.bce = MyFocalLOSS()
         self.dice = MyDiceLoss()
 
     def forward(self, inputs, targets):

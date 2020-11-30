@@ -9,7 +9,7 @@ from runbuilderclass import RunBuilder
 from Runmanagerclass import RunManager
 from MyDatasetLoader import my_data_loader
 from load_my_batch import load_my_image_batch, load_my_target_batch
-from l1_norm import calculate_l1, calculate_teeth_pixels
+from l1_norm import calculate_l1, calculate_teeth_pixels, calculate_my_metrics
 from my_albumations import my_data_albumentations
 import os
 import platform
@@ -98,7 +98,7 @@ for run in RunBuilder.get_runs(params):
     optimizer = optim.Adam(network.parameters(), lr=run.lr, betas=(0.9, 0.999), eps=1e-08, weight_decay=0)
     # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.3, last_epoch=-1)
     train_batch_list, test_batch_list, train_dict = my_data_loader(run.data, test_train_split, data_shuffle=True, batch_size=1)
-    manager.begin_run(run, train_batch_list, 1)
+    manager.begin_run(run, train_batch_list,test_batch_list, 1)
 
     for epoch in range(1, epoch_numbers + 1):
         print(f'run = {runs_count}, epoch = {epoch}')
@@ -152,20 +152,18 @@ for run in RunBuilder.get_runs(params):
             loss.backward()
             optimizer.step()
 
-            batch_l1_loss = calculate_l1(preds.detach(), targets.detach())
-            # epoch_l1_loss += batch_l1_loss
-            # average_l1_epoch_loss = epoch_l1_loss / batch_count
-            manager.track_l1_loss(batch_l1_loss)
+            # batch_l1_loss = calculate_l1(preds.detach(), targets.detach())
+            recall, true_negative_rate, precision, accuracy, f1_score = calculate_my_metrics(preds.detach(), targets.detach())
 
-            batch_correct_teeth, batch_teeth_all, batch_correct_no_teeth, batch_no_teeth_all = calculate_teeth_pixels(preds.detach(), targets.detach())
-            batch_no_correct = batch_teeth_all - batch_correct_teeth + batch_no_teeth_all - batch_correct_no_teeth
+            # batch_correct_teeth, batch_teeth_all, batch_correct_no_teeth, batch_no_teeth_all = calculate_teeth_pixels(preds.detach(), targets.detach())
+            # batch_no_correct = batch_teeth_all - batch_correct_teeth + batch_no_teeth_all - batch_correct_no_teeth
             # print('batch_no_correct', batch_no_correct)
-            epoch_no_correct += batch_no_correct
+            # epoch_no_correct += batch_no_correct
             # epoch_teeth_correct += batch_correct_teeth
             # epoch_all_teeth += batch_teeth_all
             # epoch_accuracy = epoch_teeth_correct / epoch_all_teeth
 
-            manager.track_num_correct(batch_correct_teeth, batch_teeth_all, batch_correct_no_teeth, batch_no_teeth_all)
+            manager.track_num_correct(recall, true_negative_rate, precision, accuracy, f1_score)
 
 
             # if batch % 1 == 0:
@@ -180,11 +178,11 @@ for run in RunBuilder.get_runs(params):
         torch.cuda.empty_cache()
         test_count = 0
         test_epoch_loss = 0
-        test_l1_epoch_loss = 0
-        test_epoch_teeth_correct = 0
-        test_epoch_all_teeth = 0
-        test_epoch_no_teeth_correct = 0
-        test_epoch_all_no_teeth = 0
+        t_epoch_recall = 0
+        t_epoch_true_negative_rate = 0
+        t_epoch_precision = 0
+        t_epoch_accuracy = 0
+        t_epoch_f1_score = 0
         test_batch_size = 1
         for test_batch in test_batch_list:
             test_patient = train_dict[test_batch][0]
@@ -203,21 +201,18 @@ for run in RunBuilder.get_runs(params):
             targets = torch.as_tensor(targets, dtype=torch.float32)
             targets = targets.unsqueeze(1)
             targets = targets.to(device)
-            # if run.loss == 'MyDiceLoss':
+
             test_loss = loss_function(preds.detach(), targets.detach())
-            # else:
-            #    test_loss = loss_function(preds.detach(), targets.detach(), run.loss_weight, run.loss_gamma)
 
             test_epoch_loss += test_loss.item()
 
-            test_batch_l1_loss = calculate_l1(preds.detach(), targets.detach())
-            test_l1_epoch_loss += test_batch_l1_loss
-
-            test_batch_correct_teeth, test_batch_teeth_all, test_correct_no_teeth, test_no_teeth_all = calculate_teeth_pixels(preds.detach(), targets.detach())
-            test_epoch_teeth_correct += test_batch_correct_teeth
-            test_epoch_all_teeth += test_batch_teeth_all
-            test_epoch_no_teeth_correct += test_correct_no_teeth
-            test_epoch_all_no_teeth += test_no_teeth_all
+            t_recall, t_true_negative_rate, t_precision, t_accuracy, t_f1_score = calculate_my_metrics(preds.detach(),
+                                                                                             targets.detach())
+            t_epoch_recall += t_recall
+            t_epoch_true_negative_rate += t_true_negative_rate
+            t_epoch_precision += t_precision
+            t_epoch_accuracy += t_accuracy
+            t_epoch_f1_score += t_f1_score
             # if test_batch % 1 == 0:
             #     with open(save_file_new_2, 'a', newline='') as f:
             #         result = [runs_count, run.unet, run.loss, epoch, test_count, run.data, test_patient, str(test_slices),
@@ -229,8 +224,9 @@ for run in RunBuilder.get_runs(params):
 
         torch.cuda.empty_cache()
         manager.track_test_loss(test_epoch_loss, test_count)
-        manager.track_test_l1_loss(test_l1_epoch_loss, test_count)
-        manager.track_test_num_correct(test_epoch_teeth_correct, test_epoch_all_teeth, test_epoch_no_teeth_correct, test_epoch_all_no_teeth)
+
+        manager.track_test_num_correct(t_epoch_recall, t_epoch_true_negative_rate, t_epoch_precision, t_epoch_accuracy, t_epoch_f1_score)
+
         # scheduler.step()
         manager.end_epoch()
 

@@ -23,3 +23,22 @@ def calculate_teeth_pixels(predicts, targets):
 
     return sum_of_correct_teeth_predictions, sum_of_teeth_target, sum_of_correct_no_teeth_predictions, sum_of_no_teeth_target
 
+
+def calculate_my_metrics(inputs, targets):
+    # flatten label and prediction tensors
+    inputs = inputs.view(-1)
+    targets = targets.view(-1)
+
+    # True Positives, False Positives & False Negatives
+    TP = (inputs * targets).sum()
+    FP = ((1 - targets) * inputs).sum()
+    FN = (targets * (1 - inputs)).sum()
+    TN = ((1 - targets) * (1 - inputs)).sum()
+
+    recall = TP / (TP + FN)
+    true_negative_rate = TN / (TN + FP)
+    precision = TP / (TP + FP)
+    accuracy = (TP + TN) / (TP + TN + FP + FN)
+    f1_score = (2 * precision * recall) / (precision + recall)
+    return recall.item(), true_negative_rate.item(), precision.item(), accuracy.item(), f1_score.item()
+
