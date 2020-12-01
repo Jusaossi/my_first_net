@@ -24,21 +24,24 @@ def calculate_teeth_pixels(predicts, targets):
     return sum_of_correct_teeth_predictions, sum_of_teeth_target, sum_of_correct_no_teeth_predictions, sum_of_no_teeth_target
 
 
-def calculate_my_metrics(inputs, targets):
+def calculate_my_metrics(inputs, targets, smooth=1e-5):
     # flatten label and prediction tensors
     inputs = inputs.view(-1)
     targets = targets.view(-1)
-
+    # print('max-pred', torch.max(inputs))
+    # print('min-pred', torch.min(inputs))
+    # print('max-tar', torch.max(targets))
+    # print('min-tar', torch.min(targets))
     # True Positives, False Positives & False Negatives
     TP = (inputs * targets).sum()
     FP = ((1 - targets) * inputs).sum()
     FN = (targets * (1 - inputs)).sum()
     TN = ((1 - targets) * (1 - inputs)).sum()
-
-    recall = TP / (TP + FN)
-    true_negative_rate = TN / (TN + FP)
-    precision = TP / (TP + FP)
+    # print('pixels =', TP, FN, TN, FP)
+    recall = (TP + smooth) / (TP + FN + smooth)
+    true_negative_rate = (TN + smooth) / (TN + FP + smooth)
+    precision = (TP + smooth) / (TP + FP + smooth)
     accuracy = (TP + TN) / (TP + TN + FP + FN)
-    f1_score = (2 * precision * recall) / (precision + recall)
+    f1_score = (2 * precision * recall + smooth) / (precision + recall + smooth)
     return recall.item(), true_negative_rate.item(), precision.item(), accuracy.item(), f1_score.item()
 

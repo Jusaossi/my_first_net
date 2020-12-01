@@ -140,7 +140,7 @@ for run in RunBuilder.get_runs(params):
             loss = loss_function(preds, targets)
             # else:
             #    loss = loss_function(preds, targets, run.loss_weight, run.loss_gamma)
-            print(loss)
+            # print(loss)
 
             batch_loss = loss.item()
             manager.track_loss(batch_loss)
@@ -154,7 +154,7 @@ for run in RunBuilder.get_runs(params):
 
             # batch_l1_loss = calculate_l1(preds.detach(), targets.detach())
             recall, true_negative_rate, precision, accuracy, f1_score = calculate_my_metrics(preds.detach(), targets.detach())
-
+            # print(recall, true_negative_rate, precision, accuracy, f1_score)
             # batch_correct_teeth, batch_teeth_all, batch_correct_no_teeth, batch_no_teeth_all = calculate_teeth_pixels(preds.detach(), targets.detach())
             # batch_no_correct = batch_teeth_all - batch_correct_teeth + batch_no_teeth_all - batch_correct_no_teeth
             # print('batch_no_correct', batch_no_correct)

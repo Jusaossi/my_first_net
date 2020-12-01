@@ -83,13 +83,16 @@ class RunManager:
         test_recall_here = round(self.epoch_test_recall / len(self.test_batch_list), 4)
         train_tnr_here = round(self.epoch_train_tnr / len(self.train_batch_list), 4)
         test_tnr_here = round(self.epoch_test_tnr / len(self.test_batch_list), 4)
+        # print('precision before', self.epoch_train_precision)
         train_precision_here = round(self.epoch_train_precision / len(self.train_batch_list), 4)
+        # print('precision after', self.epoch_train_precision / len(self.train_batch_list))
         test_precision_here = round(self.epoch_test_precision / len(self.test_batch_list), 4)
         train_accuracy_here = round(self.epoch_train_accuracy / len(self.train_batch_list), 4)
         test_accuracy_here = round(self.epoch_test_accuracy / len(self.test_batch_list), 4)
         train_f1_score_here = round(self.epoch_train_f1_score / len(self.train_batch_list), 4)
         test_f1_score_here = round(self.epoch_test_f1_score / len(self.test_batch_list), 4)
-
+        # print(len(self.train_batch_list))
+        print('t-board', train_recall_here, train_tnr_here, train_precision_here,  train_accuracy_here, train_f1_score_here)
         self.tb.add_scalar('Train_Loss', loss_here, self.epoch_count)
         self.tb.add_scalar('Test_Loss', test_loss_here, self.epoch_count)
 
@@ -156,6 +159,7 @@ class RunManager:
         self.epoch_train_precision += train_precision
         self.epoch_train_accuracy += train_accuracy
         self.epoch_train_f1_score += train_f1_score
+        # print(train_recall, train_true_negative_rate, train_precision, train_accuracy, train_f1_score)
 
     def track_test_num_correct(self, test_recall, test_true_negative_rate, test_precision, test_accuracy, test_f1_score):
         self.epoch_test_recall = test_recall
