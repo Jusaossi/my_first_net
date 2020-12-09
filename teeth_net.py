@@ -23,10 +23,10 @@ time_str = time.strftime("%Y-%m-%d_%H-%M")
 # data_folders = ['data', 'data_new', 'data_teeth']   scale=['[0,1]', '[-1,1]']  (1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 0), (1, 0, 1), (0, 1, 1)
 # --------------------------------------------------------------------variables for runs------------------------------
 test_train_split = 5   # 20 % for test, loss_weight=[0.5, 0.9], loss_gamma=[0.5, 1, 2, 5] 'MyDiceLoss', 'MyDiceBCELoss', 'MyIoULoss', 'MyTverskyLoss', 'MyFocalTverskyLoss'
-epoch_numbers = 30
-params = OrderedDict(data=['data'], unet=['UNetQuarter'], scale=['[0,1]'],
+epoch_numbers = 30     # Gated_UNet  UNetQuarter
+params = OrderedDict(data=['data'], unet=['Gated_UNet', 'UNetQuarter'], scale=['[0,1]'],
                      albu_prob=[(1, 1, 1)],
-                     loss=['MyMixedLoss'], lr=[0.0005])
+                     loss=['MyFocalLoss', 'MyMixedLoss', 'MyLogDiceLoss'], lr=[0.001, 0.0005])
 # ----------------------------------------------------------------------------------------------------------------------
 albu = False
 # ---------------------------------------------------------------------------------------------------------------------
@@ -138,6 +138,7 @@ for run in RunBuilder.get_runs(params):
             targets = targets.to(device)
             #if run.loss == 'MyDiceLoss':
             loss = loss_function(preds, targets)
+            #print(loss)
             # else:
             #    loss = loss_function(preds, targets, run.loss_weight, run.loss_gamma)
             # print(loss)

@@ -34,8 +34,25 @@ class MyDiceLoss(nn.Module):
         intersection = (inputs * targets).sum()
         dice = (2. * intersection + smooth) / (inputs.sum() + targets.sum() + smooth)
 
-        return - dice.log()
+        return 1 - dice
 
+
+class MyLogDiceLoss(nn.Module):
+    def __init__(self, weight=None, size_average=True):
+        super(MyLogDiceLoss, self).__init__()
+
+    def forward(self, inputs, targets, smooth=1):
+        # comment out if your model contains a sigmoid or equivalent activation layer
+        # inputs = F.sigmoid(inputs)
+
+        # flatten label and prediction tensors
+        inputs = inputs.view(-1)
+        targets = targets.view(-1)
+
+        intersection = (inputs * targets).sum()
+        dice = (2. * intersection + smooth) / (inputs.sum() + targets.sum() + smooth)
+
+        return - dice.log()
 
 class MyDiceBCELoss(nn.Module):
     def __init__(self, weight=None, size_average=True):
@@ -139,12 +156,12 @@ class MyBceLOSS(nn.Module):
             return own_loss.mean()
 
 
-class MyFocalLOSS(nn.Module):
+class MyFocalLoss(nn.Module):
     def __init__(self, reduction='mean'):
-        super(MyFocalLOSS, self).__init__()
+        super(MyFocalLoss, self).__init__()
         self.reduction = reduction
 
-    def forward(self, inputs, targets, beta=0.8, gamma=1):
+    def forward(self, inputs, targets, beta=0.6, gamma=1):
         eps = 1e-12
         own_loss = -(beta * targets * (1-inputs).pow(gamma) * inputs.clamp(min=eps).log() + (1-beta) * (1 - targets) * inputs.pow(gamma) * (1 - inputs).clamp(min=eps).log())
         if self.reduction == 'sum':
@@ -206,7 +223,7 @@ class MyAlphaBalancedFocalLOSS(nn.Module):
         super(MyAlphaBalancedFocalLOSS, self).__init__()
         self.reduction = reduction
 
-    def forward(self, inputs, targets, alpha=0.5, gamma=1):
+    def forward(self, inputs, targets, alpha=0.5, gamma=0.5):
         mod_inputs = torch.add(1, - inputs)
         mod_targets = torch.add(1, - targets)
         mod_alpha = torch.add(1, - alpha)
@@ -225,8 +242,8 @@ class MyMixedLoss(nn.Module):
         super(MyMixedLoss, self).__init__()
         self.alpha = alpha
         self.complement_alpha = 1 - alpha
-        self.bce = MyFocalLOSS()
-        self.dice = MyDiceLoss()
+        self.bce = MyFocalLoss()
+        self.dice = MyLogDiceLoss()
 
     def forward(self, inputs, targets):
         loss = self.alpha * self.bce(inputs, targets) + self.complement_alpha * self.dice(inputs, targets)
