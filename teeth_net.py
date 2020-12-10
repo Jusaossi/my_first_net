@@ -23,10 +23,10 @@ time_str = time.strftime("%Y-%m-%d_%H-%M")
 # data_folders = ['data', 'data_new', 'data_teeth']   scale=['[0,1]', '[-1,1]']  (1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 0), (1, 0, 1), (0, 1, 1)
 # --------------------------------------------------------------------variables for runs------------------------------
 test_train_split = 5   # 20 % for test, loss_weight=[0.5, 0.9], loss_gamma=[0.5, 1, 2, 5] 'MyDiceLoss', 'MyDiceBCELoss', 'MyIoULoss', 'MyTverskyLoss', 'MyFocalTverskyLoss'
-epoch_numbers = 30     # Gated_UNet  UNetQuarter
+epoch_numbers = 60     # Gated_UNet  UNetQuarter
 params = OrderedDict(data=['data'], unet=['Gated_UNet', 'UNetQuarter'], scale=['[0,1]'],
                      albu_prob=[(1, 1, 1)],
-                     loss=['MyFocalLoss', 'MyMixedLoss', 'MyLogDiceLoss'], lr=[0.001, 0.0005])
+                     loss=['MyFocalLoss', 'MyMixedLoss', 'MyLogDiceLoss', 'MyDiceBCELoss', 'MyLogDiceBCELoss'], lr=[0.001, 0.0005])
 # ----------------------------------------------------------------------------------------------------------------------
 albu = False
 # ---------------------------------------------------------------------------------------------------------------------
