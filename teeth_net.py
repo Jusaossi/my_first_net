@@ -23,10 +23,10 @@ time_str = time.strftime("%Y-%m-%d_%H-%M")
 # data_folders = ['data', 'data_new', 'data_teeth']   scale=['[0,1]', '[-1,1]']  (1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 0), (1, 0, 1), (0, 1, 1)
 # --------------------------------------------------------------------variables for runs------------------------------
 test_train_split = 5   # 20 % for test, loss_weight=[0.5, 0.9], loss_gamma=[0.5, 1, 2, 5] 'MyDiceLoss', 'MyDiceBCELoss', 'MyIoULoss', 'MyTverskyLoss', 'MyFocalTverskyLoss'
-epoch_numbers = 60     # Gated_UNet  UNetQuarter
-params = OrderedDict(data=['data'], unet=['Gated_UNet', 'UNetQuarter'], scale=['[0,1]'],
+epoch_numbers = 60     # Gated_UNet  UNetQuarter 'MyFocalLoss', 'MyMixedLoss', 'MyLogDiceLoss', 'MyDiceBCELoss', 'MyLogDiceBCELoss'
+params = OrderedDict(data=['data'], unet=['UNetQuarter'], scale=['[0,1]'],
                      albu_prob=[(1, 1, 1)],
-                     loss=['MyFocalLoss', 'MyMixedLoss', 'MyLogDiceLoss', 'MyDiceBCELoss', 'MyLogDiceBCELoss'], lr=[0.001, 0.0005])
+                     loss=['MyTverskyBceLoss'], lr=[0.001], alpha=[0.8, 0.9, 1, 1.1, 1.2])
 # ----------------------------------------------------------------------------------------------------------------------
 albu = False
 # ---------------------------------------------------------------------------------------------------------------------
@@ -92,7 +92,7 @@ for run in RunBuilder.get_runs(params):
 
     # print(run)
     loss_function = getattr(my_loss_classes, run.loss)()
-    print(loss_function)
+    # print(loss_function)
 
     network.to(device=device)
     optimizer = optim.Adam(network.parameters(), lr=run.lr, betas=(0.9, 0.999), eps=1e-08, weight_decay=0)
@@ -137,7 +137,7 @@ for run in RunBuilder.get_runs(params):
             targets = targets.unsqueeze(1)
             targets = targets.to(device)
             #if run.loss == 'MyDiceLoss':
-            loss = loss_function(preds, targets)
+            loss = loss_function(preds, targets, alpha=run.alpha)
             #print(loss)
             # else:
             #    loss = loss_function(preds, targets, run.loss_weight, run.loss_gamma)
@@ -203,7 +203,7 @@ for run in RunBuilder.get_runs(params):
             targets = targets.unsqueeze(1)
             targets = targets.to(device)
 
-            test_loss = loss_function(preds.detach(), targets.detach())
+            test_loss = loss_function(preds.detach(), targets.detach(), alpha=run.alpha)
 
             test_epoch_loss += test_loss.item()
 
