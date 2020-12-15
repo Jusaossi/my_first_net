@@ -23,12 +23,12 @@ time_str = time.strftime("%Y-%m-%d_%H-%M")
 # data_folders = ['data', 'data_new', 'data_teeth']   scale=['[0,1]', '[-1,1]']  (1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 0), (1, 0, 1), (0, 1, 1)
 # --------------------------------------------------------------------variables for runs------------------------------
 test_train_split = 5   # 20 % for test, loss_weight=[0.5, 0.9], loss_gamma=[0.5, 1, 2, 5] 'MyDiceLoss', 'MyDiceBCELoss', 'MyIoULoss', 'MyTverskyLoss', 'MyFocalTverskyLoss'
-epoch_numbers = 60     # Gated_UNet  UNetQuarter 'MyFocalLoss', 'MyMixedLoss', 'MyLogDiceLoss', 'MyDiceBCELoss', 'MyLogDiceBCELoss'
+epoch_numbers = 150     # Gated_UNet  UNetQuarter 'MyFocalLoss', 'MyMixedLoss', 'MyLogDiceLoss', 'MyDiceBCELoss', 'MyLogDiceBCELoss'
 params = OrderedDict(data=['data'], unet=['UNetQuarter'], scale=['[0,1]'],
                      albu_prob=[(1, 1, 1)],
-                     loss=['MyTverskyBceLoss'], lr=[0.001], alpha=[0.8, 0.9, 1, 1.1, 1.2])
+                     loss=['MyTverskyBceLoss'], lr=[0.0005], alpha=[1], albu=[True, False])
 # ----------------------------------------------------------------------------------------------------------------------
-albu = False
+#
 # ---------------------------------------------------------------------------------------------------------------------
 if machine == 'DESKTOP-K3R0DFP':
     my_parent_dir = r'C:\Users\jpkorpel\PycharmProjects\uusi_sika'
@@ -123,9 +123,9 @@ for run in RunBuilder.get_runs(params):
             images = load_my_image_batch(batch, train_dict, my_path, train_batch_size=1, normalize=run.scale)
             targets = load_my_target_batch(batch, train_dict, my_path, train_batch_size=1)
 
-            if albu:
+            if run.albu:
                 images, targets = my_data_albumentations(images, targets, run.albu_prob)
-                print('albu megessä')
+                #print('albu megessä')
 
             images = torch.as_tensor(images, dtype=torch.float32)
             images = images.unsqueeze(1)
