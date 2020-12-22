@@ -20,6 +20,10 @@ class RunManager:
         self.true_epoch_train_precision = None
         self.true_epoch_train_f1_score = None
 
+        self.true_epoch_test_recall = None
+        self.true_epoch_test_precision = None
+        self.true_epoch_test_f1_score = None
+
         self.epoch_test_recall = None
         self.epoch_test_tnr = None
         self.epoch_test_precision = None
@@ -72,6 +76,9 @@ class RunManager:
         self.true_epoch_train_recall = 0
         self.true_epoch_train_precision = 0
         self.true_epoch_train_f1_score = 0
+        self.true_epoch_test_recall = 0
+        self.true_epoch_test_precision = 0
+        self.true_epoch_test_f1_score = 0
         self.epoch_test_recall = 0
         # self.epoch_test_tnr = 0
         self.epoch_test_precision = 0
@@ -89,18 +96,21 @@ class RunManager:
 
         train_recall_here = round(self.epoch_train_recall / len(self.train_batch_list), 4)
         train_true_recall_here = round(self.true_epoch_train_recall, 4)
+        test_true_recall_here = round(self.true_epoch_test_recall, 4)
         test_recall_here = round(self.epoch_test_recall / len(self.test_batch_list), 4)
         # train_tnr_here = round(self.epoch_train_tnr / len(self.train_batch_list), 4)
         # test_tnr_here = round(self.epoch_test_tnr / len(self.test_batch_list), 4)
         # print('precision before', self.epoch_train_precision)
         train_precision_here = round(self.epoch_train_precision / len(self.train_batch_list), 4)
         train_true_precision_here = round(self.true_epoch_train_precision, 4)
+        test_true_precision_here = round(self.true_epoch_test_precision, 4)
         test_precision_here = round(self.epoch_test_precision / len(self.test_batch_list), 4)
 
         # train_accuracy_here = round(self.epoch_train_accuracy / len(self.train_batch_list), 4)
         # test_accuracy_here = round(self.epoch_test_accuracy / len(self.test_batch_list), 4)
         train_f1_score_here = round(self.epoch_train_f1_score / len(self.train_batch_list), 4)
         train_true_f1_score_here = round(self.true_epoch_train_f1_score, 4)
+        test_true_f1_score_here = round(self.true_epoch_test_f1_score, 4)
         test_f1_score_here = round(self.epoch_test_f1_score / len(self.test_batch_list), 4)
         # print(len(self.train_batch_list))
         print('mean-board', train_recall_here, train_precision_here,  train_f1_score_here)
@@ -110,6 +120,7 @@ class RunManager:
 
         self.tb.add_scalar('Train average Recall', train_recall_here, self.epoch_count)
         self.tb.add_scalar('Train Epoch Recall', train_true_recall_here, self.epoch_count)
+        self.tb.add_scalar('Test Epoch Recall', test_true_recall_here, self.epoch_count)
         self.tb.add_scalar('Test Recall', test_recall_here, self.epoch_count)
 
         # self.tb.add_scalar('Train True negative ratio', train_tnr_here, self.epoch_count)
@@ -117,13 +128,15 @@ class RunManager:
 
         self.tb.add_scalar('Train Average Precision', train_precision_here, self.epoch_count)
         self.tb.add_scalar('Train Epoch Precision', train_true_precision_here, self.epoch_count)
+        self.tb.add_scalar('Test Epoch Precision', test_true_precision_here, self.epoch_count)
         self.tb.add_scalar('Test Precision', test_precision_here, self.epoch_count)
 
         # self.tb.add_scalar('Train Accuracy', train_accuracy_here, self.epoch_count)
         # self.tb.add_scalar('Test Accuracy', test_accuracy_here, self.epoch_count)
 
         self.tb.add_scalar('Train F1-score', train_f1_score_here, self.epoch_count)
-        self.tb.add_scalar('Train F1-score', train_true_f1_score_here, self.epoch_count)
+        self.tb.add_scalar('Train Epoch F1-score', train_true_f1_score_here, self.epoch_count)
+        self.tb.add_scalar('Test Epoch F1-score', test_true_f1_score_here, self.epoch_count)
         self.tb.add_scalar('Test F1-score', test_f1_score_here, self.epoch_count)
 
     #     results = OrderedDict()
@@ -188,3 +201,8 @@ class RunManager:
         self.true_epoch_train_recall = my_tp / (my_tp + my_fn)
         self.true_epoch_train_precision = my_tp / (my_tp + my_fp)
         self.true_epoch_train_f1_score = (2 * self.true_epoch_train_precision * self.true_epoch_train_recall) / (self.true_epoch_train_precision + self.true_epoch_train_recall)
+
+    def track_test_true_epoch_metrics(self, my_test_recall, my_test_precision, my_test_f1_score):
+        self.true_epoch_test_recall = my_test_recall
+        self.true_epoch_test_precision = my_test_precision
+        self.true_epoch_test_f1_score = my_test_f1_score

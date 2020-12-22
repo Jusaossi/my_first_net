@@ -23,17 +23,18 @@ time_str = time.strftime("%Y-%m-%d_%H-%M")
 # data_folders = ['data', 'data_new', 'data_teeth']   scale=['[0,1]', '[-1,1]']  (1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 0), (1, 0, 1), (0, 1, 1)
 # --------------------------------------------------------------------variables for runs------------------------------
 test_train_split = 5   # 20 % for test, loss_weight=[0.5, 0.9], loss_gamma=[0.5, 1, 2, 5] 'MyDiceLoss', 'MyDiceBCELoss', 'MyIoULoss', 'MyTverskyLoss', 'MyFocalTverskyLoss'
-epoch_numbers = 150     # Gated_UNet  UNetQuarter 'MyFocalLoss', 'MyMixedLoss', 'MyLogDiceLoss', 'MyDiceBCELoss', 'MyLogDiceBCELoss'
-params = OrderedDict(data=['data'], unet=['UNetQuarter'], scale=['[0,1]'],
+epoch_numbers = 120     # Gated_UNet  UNetQuarter 'MyFocalLoss', 'MyMixedLoss', 'MyLogDiceLoss', 'MyDiceBCELoss', 'MyLogDiceBCELoss'
+params = OrderedDict(data=['data_teeth'], unet=['UNetHalf'], scale=['[0,1]'],
                      albu_prob=[(1, 1, 1)],
-                     loss=['MyTverskyBceLoss'], lr=[0.0005], alpha=[1], albu=[True, False])
+                     loss=['MyTverskyBceLoss'], lr=[0.0005], alpha=[1], albu=[False])
 # ----------------------------------------------------------------------------------------------------------------------
 #
 # ---------------------------------------------------------------------------------------------------------------------
 if machine == 'DESKTOP-K3R0DFP':
     my_parent_dir = r'C:\Users\jpkorpel\PycharmProjects\uusi_sika'
     my_parent_dir_2 = r'C:\Users\jpkorpel\PycharmProjects'
-    # my_save_path = r'C:\Users\jpkorpel\PycharmProjects\uusi_sika\teeth_net\results'
+    my_save_path_help = r'C:\Users\jpkorpel\PycharmProjects\my_first_net'
+    my_save_path = os.path.join(my_save_path_help, 'runs')
     # save_file = os.path.join(my_save_path, time_str + '_Teeth_net_results')
     # save_file_new = os.path.join(my_save_path, time_str + '_Teeth_net_results_train_batch.csv')
     # save_file_new_2 = os.path.join(my_save_path, time_str + '_Teeth_net_results_test_batch.csv')
@@ -47,7 +48,7 @@ elif machine == 'siiri-desktop':
     card = 'cuda'
 else:
     my_parent_dir = os.path.dirname(os.getcwd())
-    #my_save_path = os.path.join(my_parent_dir, 'teeth_net/results')
+    my_save_path = os.path.join(my_parent_dir, 'my_first_net')
     # save_file = os.path.join(my_save_path, time_str + '_Teeth_net_results')
     # save_file_new = os.path.join(my_save_path, time_str + '_Teeth_net_results_train_batch.csv')
     # save_file_new_2 = os.path.join(my_save_path, time_str + '_Teeth_net_results_test_batch.csv')
@@ -115,6 +116,7 @@ for run in RunBuilder.get_runs(params):
         epoch_tp = 0
         epoch_fp = 0
         epoch_fn = 0
+
         for batch in train_batch_list:
             patient = train_dict[batch][0]
             patient_slices = train_dict[batch][1]
@@ -160,7 +162,7 @@ for run in RunBuilder.get_runs(params):
             # batch_l1_loss = calculate_l1(preds.detach(), targets.detach())
             recall, precision, f1_score = calculate_my_metrics(preds.detach(), targets.detach())
             TP, FP, FN = calculate_my_sets(preds.detach(), targets.detach())
-            
+
             epoch_tp += TP
             epoch_fp += FP
             epoch_fn += FN
@@ -185,12 +187,6 @@ for run in RunBuilder.get_runs(params):
             #         writer.writerow(result)
         # print('epoch_no_correct =', epoch_no_correct)
 
-            # if f1_score > my_f1_score:
-            #     my_f1_score = f1_score
-            #     print('model save')
-            #     print('my_f1_score', my_f1_score)
-            #     # torch.save(model, PATH)
-
         manager.track_test_epoch_metrics(epoch_tp, epoch_fp, epoch_fn)
         torch.cuda.empty_cache()
         test_count = 0
@@ -201,6 +197,9 @@ for run in RunBuilder.get_runs(params):
         # t_epoch_accuracy = 0
         t_epoch_f1_score = 0
         test_batch_size = 1
+        test_epoch_tp = 0
+        test_epoch_fp = 0
+        test_epoch_fn = 0
         for test_batch in test_batch_list:
             test_patient = train_dict[test_batch][0]
             test_slices = train_dict[test_batch][1]
@@ -229,6 +228,11 @@ for run in RunBuilder.get_runs(params):
             t_epoch_precision += t_precision
             # t_epoch_accuracy += t_accuracy
             t_epoch_f1_score += t_f1_score
+            test_TP, test_FP, test_FN = calculate_my_sets(preds.detach(), targets.detach())
+
+            test_epoch_tp += test_TP
+            test_epoch_fp += test_FP
+            test_epoch_fn += test_FN
             # if test_batch % 1 == 0:
             #     with open(save_file_new_2, 'a', newline='') as f:
             #         result = [runs_count, run.unet, run.loss, epoch, test_count, run.data, test_patient, str(test_slices),
@@ -238,14 +242,23 @@ for run in RunBuilder.get_runs(params):
             #         writer = csv.writer(f)
             #         writer.writerow(result)
 
-        torch.cuda.empty_cache()
+        epoch_test_recall = test_epoch_tp / (test_epoch_tp + test_epoch_fn)
+        epoch_test_precision = test_epoch_tp / (test_epoch_tp + test_epoch_fp)
+        epoch_test_f1_score = (2 * epoch_test_precision * epoch_test_recall) / (epoch_test_precision + epoch_test_recall)
+
         manager.track_test_loss(test_epoch_loss, test_count)
 
         manager.track_test_num_correct(t_epoch_recall, t_epoch_precision, t_epoch_f1_score)
+        manager.track_test_true_epoch_metrics(epoch_test_recall, epoch_test_precision, epoch_test_f1_score)
 
+        if epoch_test_f1_score > my_f1_score:
+            my_f1_score = epoch_test_f1_score
+            print('model now save, epoch =', epoch)
+            print('epoch_test_f1_score:', epoch_test_f1_score)
+            torch.save(network, my_save_path + '\\' + 'network.pth')
         # scheduler.step()
         manager.end_epoch()
-
+        torch.cuda.empty_cache()
     manager.end_run()
 # manager.save(save_file)
 
