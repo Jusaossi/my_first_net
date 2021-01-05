@@ -10,7 +10,7 @@ from Runmanagerclass import RunManager
 from MyDatasetLoader import my_data_loader
 from load_my_batch import load_my_image_batch, load_my_target_batch
 from l1_norm import calculate_l1, calculate_teeth_pixels, calculate_my_metrics, calculate_my_sets
-from my_albumations import my_data_albumentations
+from my_albumations import my_data_albumentations, my_data_albumentations2
 import os
 import platform
 import csv
@@ -23,10 +23,9 @@ time_str = time.strftime("%Y-%m-%d_%H-%M")
 # data_folders = ['data', 'data_new', 'data_teeth']   scale=['[0,1]', '[-1,1]']  (1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 0), (1, 0, 1), (0, 1, 1)
 # --------------------------------------------------------------------variables for runs------------------------------
 test_train_split = 5   # 20 % for test, loss_weight=[0.5, 0.9], loss_gamma=[0.5, 1, 2, 5] 'MyDiceLoss', 'MyDiceBCELoss', 'MyIoULoss', 'MyTverskyLoss', 'MyFocalTverskyLoss'
-epoch_numbers = 120     # Gated_UNet  UNetQuarter 'MyFocalLoss', 'MyMixedLoss', 'MyLogDiceLoss', 'MyDiceBCELoss', 'MyLogDiceBCELoss'
+epoch_numbers = 60     # Gated_UNet  UNetQuarter 'MyFocalLoss', 'MyMixedLoss', 'MyLogDiceLoss', 'MyDiceBCELoss', 'MyLogDiceBCELoss'..... albu_prob=[(1, 1, 1)],
 params = OrderedDict(data=['data_teeth'], unet=['UNetHalf'], scale=['[0,1]'],
-                     albu_prob=[(1, 1, 1)],
-                     loss=['MyTverskyBceLoss'], lr=[0.0005], alpha=[1], albu=[False])
+                     loss=['MyTverskyBceLoss'], lr=[0.0005], alpha=[1], albu=['Blur', 'MotionBlur', 'RandomGamma', 'MedianBlur', 'RandomBrightnessContrast'])
 # ----------------------------------------------------------------------------------------------------------------------
 #
 # ---------------------------------------------------------------------------------------------------------------------
@@ -127,16 +126,16 @@ for run in RunBuilder.get_runs(params):
                 break
 
             images = load_my_image_batch(batch, train_dict, my_path, train_batch_size=1, normalize=run.scale)
+
             targets = load_my_target_batch(batch, train_dict, my_path, train_batch_size=1)
 
-            if run.albu:
-                images, targets = my_data_albumentations(images, targets, run.albu_prob)
-                #print('albu megessä')
-
+            # if run.albu:
+            #     images, targets = my_data_albumentations(images, targets, run.albu_prob)
+            #     #print('albu megessä')
+            images, targets = my_data_albumentations2(images, targets, run.albu)
             images = torch.as_tensor(images, dtype=torch.float32)
             images = images.unsqueeze(1)
             images = images.to(device)
-
             preds = network(images)
 
             targets = torch.as_tensor(targets, dtype=torch.float32)
@@ -251,12 +250,12 @@ for run in RunBuilder.get_runs(params):
         manager.track_test_num_correct(t_epoch_recall, t_epoch_precision, t_epoch_f1_score)
         manager.track_test_true_epoch_metrics(epoch_test_recall, epoch_test_precision, epoch_test_f1_score)
 
-        if epoch_test_f1_score > my_f1_score:
-            my_f1_score = epoch_test_f1_score
-            print('model now save, epoch =', epoch)
-            print('epoch_test_f1_score:', epoch_test_f1_score)
-            torch.save(network, my_save_path + '\\' + 'network.pth')
-        # scheduler.step()
+        # if epoch_test_f1_score > my_f1_score:
+        #     my_f1_score = epoch_test_f1_score
+        #     print('model now save, epoch =', epoch)
+        #     print('epoch_test_f1_score:', epoch_test_f1_score)
+        #     torch.save(network, my_save_path + '\\' + 'network.pth')
+        # # scheduler.step()
         manager.end_epoch()
         torch.cuda.empty_cache()
     manager.end_run()

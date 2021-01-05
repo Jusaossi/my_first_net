@@ -3,7 +3,7 @@ import albumentations
 import cv2
 
 
-def trasformations(size_y, size_x, p):
+def transformations(size_y, size_x, p):
     p1, p2, p3 = 0.5 * p[0], 0.5 * p[1], 0.5 * p[2]
     train_transform = albumentations.Compose([
         albumentations.OneOf([albumentations.Resize(251, 301, p=1),
@@ -33,7 +33,6 @@ def trasformations(size_y, size_x, p):
 
 
 def my_data_albumentations(images, targets, prop):
-
     images = np.squeeze(images, axis=0)
     images = images.astype(np.float32)
     targets = np.squeeze(targets, axis=0)
@@ -41,8 +40,34 @@ def my_data_albumentations(images, targets, prop):
     image_x_dim = images.shape[1]
     size_y = int(0.7 * image_y_dim)
     size_x = int(0.7 * image_x_dim)
-    transform = trasformations(size_y, size_x, prop)
+    transform = transformations(size_y, size_x, prop)
     transformed = transform(image=images, mask=targets)
+    trans_image = transformed['image']
+    trans_target = transformed['mask']
+
+    return np.expand_dims(trans_image, axis=0), np.expand_dims(trans_target, axis=0)
+
+
+def my_data_albumentations2(images, targets, my_albu):
+    images = np.squeeze(images, axis=0)
+    images = images.astype(np.float32)
+    targets = np.squeeze(targets, axis=0)
+    image_y_dim = images.shape[0]
+    image_x_dim = images.shape[1]
+    size_y = int(0.7 * image_y_dim)
+    size_x = int(0.7 * image_x_dim)
+    if my_albu == 'Blur':
+        transformations = albumentations.Blur(blur_limit=5, p=0.2)
+    elif my_albu == 'MotionBlur':
+        transformations = albumentations.MotionBlur(blur_limit=7, p=0.2)
+    elif my_albu == 'RandomGamma':
+        transformations = albumentations.RandomGamma(gamma_limit=(80, 300), p=0.2)
+    elif my_albu == 'MedianBlur':
+        transformations = albumentations.MedianBlur(blur_limit=5, p=0.2)
+    elif my_albu == 'RandomBrightnessContrast':
+        transformations = albumentations.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.2, p=0.2)
+
+    transformed = transformations(image=images, mask=targets)
     trans_image = transformed['image']
     trans_target = transformed['mask']
 
