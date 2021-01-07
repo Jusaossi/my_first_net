@@ -66,6 +66,21 @@ def my_data_albumentations2(images, targets, my_albu):
         transformations = albumentations.MedianBlur(blur_limit=5, p=0.2)
     elif my_albu == 'RandomBrightnessContrast':
         transformations = albumentations.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.2, p=0.2)
+    elif my_albu == 'Resize':
+        transformations = albumentations.Resize(251, 301, p=0.2)
+    elif my_albu == 'RandomCrop':
+        transformations = albumentations.RandomCrop(size_y, size_x, p=0.2)
+    elif my_albu == 'HorizontalFlip':
+        transformations = albumentations.HorizontalFlip(p=0.2)
+    elif my_albu == 'GridDistortion':
+        transformations = albumentations.GridDistortion(p=0.2)
+    elif my_albu == 'ElasticTransform':
+        transformations = albumentations.ElasticTransform(p=0.2)
+    elif my_albu == 'ShiftScaleRotate':
+        transformations = albumentations.ShiftScaleRotate(border_mode=cv2.BORDER_CONSTANT,
+                                                          scale_limit=0.3,
+                                                          rotate_limit=(10, 30),
+                                                          p=0.2)
 
     transformed = transformations(image=images, mask=targets)
     trans_image = transformed['image']
