@@ -25,8 +25,9 @@ time_str = time.strftime("%Y-%m-%d_%H-%M")
 test_train_split = 5   # 20 % for test, loss_weight=[0.5, 0.9], loss_gamma=[0.5, 1, 2, 5] 'MyDiceLoss', 'MyDiceBCELoss', 'MyIoULoss', 'MyTverskyLoss', 'MyFocalTverskyLoss'
 epoch_numbers = 60     # Gated_UNet  UNetQuarter 'MyFocalLoss', 'MyMixedLoss', 'MyLogDiceLoss', 'MyDiceBCELoss', 'MyLogDiceBCELoss'..... albu_prob=[(1, 1, 1)],
                         # 'Blur', 'MotionBlur', 'RandomGamma', 'MedianBlur', 'RandomBrightnessContrast'
+                        # 'Resize', 'RandomCrop', 'HorizontalFlip', 'GridDistortion', 'ElasticTransform', 'ShiftScaleRotate'
 params = OrderedDict(data=['data_teeth'], unet=['UNetHalf'], scale=['[0,1]'],
-                     loss=['MyTverskyBceLoss'], lr=[0.0005], alpha=[1], albu=['Resize', 'RandomCrop', 'HorizontalFlip', 'GridDistortion', 'ElasticTransform', 'ShiftScaleRotate'])
+                     loss=['MyTverskyBceLoss'], lr=[0.0005], alpha=[1], albu=['MaskDropout', 'RandomGridShuffle', 'OpticalDistortion', 'no_augmentation', 'Rotate'])
 # ----------------------------------------------------------------------------------------------------------------------
 #
 # ---------------------------------------------------------------------------------------------------------------------
@@ -133,7 +134,9 @@ for run in RunBuilder.get_runs(params):
             # if run.albu:
             #     images, targets = my_data_albumentations(images, targets, run.albu_prob)
             #     #print('albu megessä')
-            images, targets = my_data_albumentations2(images, targets, run.albu)
+            if run.albu != 'no_augmentation':
+                images, targets = my_data_albumentations2(images, targets, run.albu)
+
             images = torch.as_tensor(images, dtype=torch.float32)
             images = images.unsqueeze(1)
             images = images.to(device)

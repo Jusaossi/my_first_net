@@ -56,6 +56,7 @@ def my_data_albumentations2(images, targets, my_albu):
     image_x_dim = images.shape[1]
     size_y = int(0.7 * image_y_dim)
     size_x = int(0.7 * image_x_dim)
+
     if my_albu == 'Blur':
         transformations = albumentations.Blur(blur_limit=5, p=0.2)
     elif my_albu == 'MotionBlur':
@@ -81,6 +82,16 @@ def my_data_albumentations2(images, targets, my_albu):
                                                           scale_limit=0.3,
                                                           rotate_limit=(10, 30),
                                                           p=0.2)
+    elif my_albu == 'Rotate':
+        transformations = albumentations.Rotate(limit=90, interpolation=1, border_mode=4, always_apply=False, p=0.2)
+    elif my_albu == 'OpticalDistortion':
+        transformations = albumentations.OpticalDistortion(distort_limit=1.5, shift_limit=1.5, interpolation=1,
+                                                           border_mode=4, always_apply=False, p=0.2)
+    elif my_albu == 'RandomGridShuffle':
+        transformations = albumentations.RandomGridShuffle(p=0.2)
+    elif my_albu == 'MaskDropout':
+        transformations = albumentations.MaskDropout(max_objects=3, image_fill_value=0, mask_fill_value=0,
+                                                     always_apply=False, p=0.2)
 
     transformed = transformations(image=images, mask=targets)
     trans_image = transformed['image']
