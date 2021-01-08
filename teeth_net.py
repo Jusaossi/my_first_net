@@ -26,8 +26,9 @@ test_train_split = 5   # 20 % for test, loss_weight=[0.5, 0.9], loss_gamma=[0.5,
 epoch_numbers = 60     # Gated_UNet  UNetQuarter 'MyFocalLoss', 'MyMixedLoss', 'MyLogDiceLoss', 'MyDiceBCELoss', 'MyLogDiceBCELoss'..... albu_prob=[(1, 1, 1)],
                         # 'Blur', 'MotionBlur', 'RandomGamma', 'MedianBlur', 'RandomBrightnessContrast'
                         # 'Resize', 'RandomCrop', 'HorizontalFlip', 'GridDistortion', 'ElasticTransform', 'ShiftScaleRotate'
+                        # 'MaskDropout', 'RandomGridShuffle', 'OpticalDistortion', 'no_augmentation', 'Rotate'
 params = OrderedDict(data=['data_teeth'], unet=['UNetHalf'], scale=['[0,1]'],
-                     loss=['MyTverskyBceLoss'], lr=[0.0005], alpha=[1], albu=['MaskDropout', 'RandomGridShuffle', 'OpticalDistortion', 'no_augmentation', 'Rotate'])
+                     loss=['MyTverskyBceLoss'], lr=[0.0005], alpha=[1], albu=['RandomBrightnessContrast'], albu_prob=[0.1, 0.2, 0.3, 0.4, 0.5])
 # ----------------------------------------------------------------------------------------------------------------------
 #
 # ---------------------------------------------------------------------------------------------------------------------
@@ -135,7 +136,7 @@ for run in RunBuilder.get_runs(params):
             #     images, targets = my_data_albumentations(images, targets, run.albu_prob)
             #     #print('albu megessä')
             if run.albu != 'no_augmentation':
-                images, targets = my_data_albumentations2(images, targets, run.albu)
+                images, targets = my_data_albumentations2(images, targets, run.albu, run.albu_prob)
 
             images = torch.as_tensor(images, dtype=torch.float32)
             images = images.unsqueeze(1)

@@ -48,7 +48,7 @@ def my_data_albumentations(images, targets, prop):
     return np.expand_dims(trans_image, axis=0), np.expand_dims(trans_target, axis=0)
 
 
-def my_data_albumentations2(images, targets, my_albu):
+def my_data_albumentations2(images, targets, my_albu, my_prop):
     images = np.squeeze(images, axis=0)
     images = images.astype(np.float32)
     targets = np.squeeze(targets, axis=0)
@@ -66,7 +66,7 @@ def my_data_albumentations2(images, targets, my_albu):
     elif my_albu == 'MedianBlur':
         transformations = albumentations.MedianBlur(blur_limit=5, p=0.2)
     elif my_albu == 'RandomBrightnessContrast':
-        transformations = albumentations.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.2, p=0.2)
+        transformations = albumentations.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.2, p=my_prop)
     elif my_albu == 'Resize':
         transformations = albumentations.Resize(251, 301, p=0.2)
     elif my_albu == 'RandomCrop':
