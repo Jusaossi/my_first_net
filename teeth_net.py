@@ -132,12 +132,15 @@ for run in RunBuilder.get_runs(params):
             images = load_my_image_batch(batch, train_dict, my_path, train_batch_size=1, normalize=run.scale)
 
             targets = load_my_target_batch(batch, train_dict, my_path, train_batch_size=1)
-
+            # print('images shape=', images.shape)
+            # print('targets shape=', targets.shape)
             # if run.albu:
             #     images, targets = my_data_albumentations(images, targets, run.albu_prob)
             #     #print('albu megessä')
             if run.albu != 'no_augmentation':
                 images, targets = my_data_albumentations2(images, targets, run.albu, run.albu_prob)
+            # print('images shape=', images.shape)
+            # print('targets shape=', targets.shape)
 
             images = torch.as_tensor(images, dtype=torch.float32)
             images = images.unsqueeze(1)
@@ -147,9 +150,14 @@ for run in RunBuilder.get_runs(params):
             targets = torch.as_tensor(targets, dtype=torch.float32)
             targets = targets.unsqueeze(1)
             targets = targets.to(device)
+            # print('images shape=', images.shape)
+            # print('targets shape=', targets.shape)
+            # print(run.alpha)
+
             #if run.loss == 'MyDiceLoss':
             loss = loss_function(preds, targets, alpha=run.alpha)
-            #print(loss)
+            # print(loss)
+
             # else:
             #    loss = loss_function(preds, targets, run.loss_weight, run.loss_gamma)
             # print(loss)

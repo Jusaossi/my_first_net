@@ -124,11 +124,13 @@ class MyTverskyBceLoss(nn.Module):
     def forward(self, inputs, targets, alpha, beta=1, smooth=1):
         # comment out if your model contains a sigmoid or equivalent activation layer
         # inputs = F.sigmoid(inputs)
-
+        #print('inputs shape=', inputs.shape)
+        #print('targets shape=', targets.shape)
         # flatten label and prediction tensors
-        inputs = inputs.view(-1)
-        targets = targets.view(-1)
-
+        inputs = torch.reshape(inputs, (-1,))
+        targets = torch.reshape(targets, (-1,))
+        #print('inputs shape=', inputs.shape)
+        #print('targets shape=', targets.shape)
         # True Positives, False Positives & False Negatives
         TP = (inputs * targets).sum()
         FP = ((1 - targets) * inputs).sum()

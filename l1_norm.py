@@ -26,8 +26,8 @@ def calculate_teeth_pixels(predicts, targets):
 
 def calculate_my_metrics(inputs, targets, smooth=1e-5):
     # flatten label and prediction tensors
-    inputs = inputs.view(-1)
-    targets = targets.view(-1)
+    inputs = torch.reshape(inputs, (-1,))
+    targets = torch.reshape(targets, (-1,))
     # print('max-pred', torch.max(inputs))
     # print('min-pred', torch.min(inputs))
     # print('max-tar', torch.max(targets))
@@ -47,8 +47,8 @@ def calculate_my_metrics(inputs, targets, smooth=1e-5):
 
 def calculate_my_sets(inputs, targets):
     # flatten label and prediction tensors
-    inputs = inputs.view(-1)
-    targets = targets.view(-1)
+    inputs = torch.reshape(inputs, (-1,))
+    targets = torch.reshape(targets, (-1,))
     # True Positives, False Positives & False Negatives
     TP = (inputs * targets).sum()
     FP = ((1 - targets) * inputs).sum()
