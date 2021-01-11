@@ -93,6 +93,17 @@ def my_data_albumentations2(images, targets, my_albu, my_prop):
         transformations = albumentations.MaskDropout(max_objects=3, image_fill_value=0, mask_fill_value=0,
                                                      always_apply=False, p=0.2)
 
+    elif my_albu == 'Transpose':
+        transformations = albumentations.Transpose(p=0.2)
+    elif my_albu == 'RandomRotate90':
+        transformations = albumentations.RandomRotate90(p=0.2)
+    elif my_albu == 'VerticalFlip':
+        transformations = albumentations.VerticalFlip(p=0.2)
+    elif my_albu == 'CenterCrop':
+        transformations = albumentations.CenterCrop(p=0.2, height=image_y_dim, width=image_x_dim)
+    elif my_albu == 'RandomSizedCrop':
+        transformations = albumentations.RandomSizedCrop(min_max_height=(50, 150), height=image_y_dim, width=image_x_dim, p=0.2)
+
     transformed = transformations(image=images, mask=targets)
     trans_image = transformed['image']
     trans_target = transformed['mask']
