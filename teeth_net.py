@@ -29,7 +29,7 @@ epoch_numbers = 60     # Gated_UNet  UNetQuarter 'MyFocalLoss', 'MyMixedLoss', '
                         # 'MaskDropout', 'RandomGridShuffle', 'OpticalDistortion', 'no_augmentation', 'Rotate'
                         # albu=['Transpose', 'RandomRotate90', 'VerticalFlip', 'CenterCrop', 'RandomSizedCrop']
 params = OrderedDict(data=['data_teeth'], unet=['UNetHalf'], scale=['[0,1]'],
-                     loss=['MyTverskyBceLoss'], lr=[0.0005], alpha=[1], albu1=['RandomGamma'], albu2=['RandomBrightnessContrast'], albu_prob=[0.2, 0.3])
+                     loss=['MyTverskyBceLoss'], lr=[0.0005], albu1=['RandomGamma'], albu2=['RandomBrightnessContrast'], albu_prob=[0.2, 0.3])
 # ----------------------------------------------------------------------------------------------------------------------
 #
 # ---------------------------------------------------------------------------------------------------------------------
@@ -157,7 +157,7 @@ for run in RunBuilder.get_runs(params):
             # print(run.alpha)
 
             #if run.loss == 'MyDiceLoss':
-            loss = loss_function(preds, targets, alpha=run.alpha)
+            loss = loss_function(preds, targets, alpha=1)
             # print(loss)
 
             # else:
@@ -233,7 +233,7 @@ for run in RunBuilder.get_runs(params):
             targets = targets.unsqueeze(1)
             targets = targets.to(device)
 
-            test_loss = loss_function(preds.detach(), targets.detach(), alpha=run.alpha)
+            test_loss = loss_function(preds.detach(), targets.detach(), alpha=1)
 
             test_epoch_loss += test_loss.item()
 
