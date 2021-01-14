@@ -10,7 +10,7 @@ from Runmanagerclass import RunManager
 from MyDatasetLoader import my_data_loader
 from load_my_batch import load_my_image_batch, load_my_target_batch
 from l1_norm import calculate_l1, calculate_teeth_pixels, calculate_my_metrics, calculate_my_sets
-from my_albumations import my_data_albumentations, my_data_albumentations2
+from my_albumations import my_data_albumentations, my_data_albumentations2, my_data_albumentations3
 import os
 import platform
 import csv
@@ -27,9 +27,9 @@ epoch_numbers = 60     # Gated_UNet  UNetQuarter 'MyFocalLoss', 'MyMixedLoss', '
                         # 'Blur', 'MotionBlur', 'RandomGamma', 'MedianBlur', 'RandomBrightnessContrast'
                         # 'Resize', 'RandomCrop', 'HorizontalFlip', 'GridDistortion', 'ElasticTransform', 'ShiftScaleRotate'
                         # 'MaskDropout', 'RandomGridShuffle', 'OpticalDistortion', 'no_augmentation', 'Rotate'
-                        #
+                        # albu=['Transpose', 'RandomRotate90', 'VerticalFlip', 'CenterCrop', 'RandomSizedCrop']
 params = OrderedDict(data=['data_teeth'], unet=['UNetHalf'], scale=['[0,1]'],
-                     loss=['MyTverskyBceLoss'], lr=[0.0005], alpha=[1], albu=['Transpose', 'RandomRotate90', 'VerticalFlip', 'CenterCrop', 'RandomSizedCrop'], albu_prob=[0.2])
+                     loss=['MyTverskyBceLoss'], lr=[0.0005], alpha=[1], albu1=['RandomGamma'], albu2=['RandomBrightnessContrast'], albu_prob=[0.2, 0.3])
 # ----------------------------------------------------------------------------------------------------------------------
 #
 # ---------------------------------------------------------------------------------------------------------------------
@@ -102,7 +102,7 @@ for run in RunBuilder.get_runs(params):
     optimizer = optim.Adam(network.parameters(), lr=run.lr, betas=(0.9, 0.999), eps=1e-08, weight_decay=0)
     # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.3, last_epoch=-1)
     train_batch_list, test_batch_list, train_dict = my_data_loader(run.data, test_train_split, data_shuffle=True, batch_size=1)
-    manager.begin_run(run, train_batch_list,test_batch_list, 1)
+    manager.begin_run(run, train_batch_list, test_batch_list, 1)
     my_f1_max_score = 0
     my_f1_score = 0
     for epoch in range(1, epoch_numbers + 1):
@@ -137,8 +137,10 @@ for run in RunBuilder.get_runs(params):
             # if run.albu:
             #     images, targets = my_data_albumentations(images, targets, run.albu_prob)
             #     #print('albu megessä')
-            if run.albu != 'no_augmentation':
-                images, targets = my_data_albumentations2(images, targets, run.albu, run.albu_prob)
+            # if run.albu != 'no_augmentation':
+            #     images, targets = my_data_albumentations2(images, targets, run.albu, run.albu_prob)
+
+            images, targets = my_data_albumentations3(images, targets, run.albu1, run.albu2, run.albu_prob)
             # print('images shape=', images.shape)
             # print('targets shape=', targets.shape)
 

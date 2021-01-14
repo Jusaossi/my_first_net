@@ -111,3 +111,18 @@ def my_data_albumentations2(images, targets, my_albu, my_prop):
     return np.expand_dims(trans_image, axis=0), np.expand_dims(trans_target, axis=0)
 
 
+def my_data_albumentations3(images, targets, my_albu1, my_albu2, my_prop):
+    images = np.squeeze(images, axis=0)
+    images = images.astype(np.float32)
+    targets = np.squeeze(targets, axis=0)
+    my_transformations = None
+    if my_albu1 == 'RandomGamma' and my_albu2 == 'RandomBrightnessContrast':
+        my_transformations = albumentations.Compose([
+            albumentations.RandomGamma(gamma_limit=(80, 300), p=my_prop),
+            albumentations.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.2, p=my_prop), ])
+
+    transformed = my_transformations(image=images, mask=targets)
+    trans_image = transformed['image']
+    trans_target = transformed['mask']
+
+    return np.expand_dims(trans_image, axis=0), np.expand_dims(trans_target, axis=0)
