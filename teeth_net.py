@@ -29,7 +29,7 @@ epoch_numbers = 60     # Gated_UNet  UNetQuarter 'MyFocalLoss', 'MyMixedLoss', '
                         # 'MaskDropout', 'RandomGridShuffle', 'OpticalDistortion', 'no_augmentation', 'Rotate'
                         # albu=['Transpose', 'RandomRotate90', 'VerticalFlip', 'CenterCrop', 'RandomSizedCrop']
 params = OrderedDict(data=['data_teeth'], unet=['UNetHalf'], scale=['[0,1]'],
-                     loss=['MyTverskyBceLoss'], lr=[0.0005], albu1=['RandomGamma'], albu2=['RandomBrightnessContrast'], albu_prob=[0.2, 0.3])
+                     loss=['MyTverskyBceLoss'], lr=[0.0005], albu=['RandomGamma_RandomBrightnessContrast_ShiftScaleRotate'], albu_prob=[0.2, 0.3])
 # ----------------------------------------------------------------------------------------------------------------------
 #
 # ---------------------------------------------------------------------------------------------------------------------
@@ -140,7 +140,7 @@ for run in RunBuilder.get_runs(params):
             # if run.albu != 'no_augmentation':
             #     images, targets = my_data_albumentations2(images, targets, run.albu, run.albu_prob)
 
-            images, targets = my_data_albumentations3(images, targets, run.albu1, run.albu2, run.albu_prob)
+            images, targets = my_data_albumentations3(images, targets, run.albu, run.albu_prob)
             # print('images shape=', images.shape)
             # print('targets shape=', targets.shape)
 
