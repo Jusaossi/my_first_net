@@ -116,10 +116,9 @@ def my_data_albumentations3(images, targets, my_albu, my_prop):
     images = images.astype(np.float32)
     targets = np.squeeze(targets, axis=0)
     my_transformations = None
-    if my_albu == 'RandomGamma_RandomBrightnessContrast_ShiftScaleRotate':
+    if my_albu == 'RandomGamma_RandomBrightnessContrast':
         my_transformations = albumentations.Compose([albumentations.RandomGamma(gamma_limit=(80, 300), p=my_prop),
-                             albumentations.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.2, p=my_prop),
-                            albumentations.ShiftScaleRotate(border_mode=cv2.BORDER_CONSTANT, scale_limit=0.3, rotate_limit=(10, 30), p=my_prop), ])
+                             albumentations.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.2, p=my_prop), ])
 
     transformed = my_transformations(image=images, mask=targets)
     trans_image = transformed['image']

@@ -23,13 +23,13 @@ time_str = time.strftime("%Y-%m-%d_%H-%M")
 # data_folders = ['data', 'data_new', 'data_teeth']   scale=['[0,1]', '[-1,1]']  (1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 0), (1, 0, 1), (0, 1, 1)
 # --------------------------------------------------------------------variables for runs------------------------------
 test_train_split = 5   # 20 % for test, loss_weight=[0.5, 0.9], loss_gamma=[0.5, 1, 2, 5] 'MyDiceLoss', 'MyDiceBCELoss', 'MyIoULoss', 'MyTverskyLoss', 'MyFocalTverskyLoss'
-epoch_numbers = 60     # Gated_UNet  UNetQuarter 'MyFocalLoss', 'MyMixedLoss', 'MyLogDiceLoss', 'MyDiceBCELoss', 'MyLogDiceBCELoss'..... albu_prob=[(1, 1, 1)],
-                        # 'Blur', 'MotionBlur', 'RandomGamma', 'MedianBlur', 'RandomBrightnessContrast'
+epoch_numbers = 200     # Gated_UNet  UNetQuarter 'MyFocalLoss', 'MyMixedLoss', 'MyLogDiceLoss', 'MyDiceBCELoss', 'MyLogDiceBCELoss'..... albu_prob=[(1, 1, 1)],
+run_data = 'data_teeth'                       # 'Blur', 'MotionBlur', 'RandomGamma', 'MedianBlur', 'RandomBrightnessContrast'
                         # 'Resize', 'RandomCrop', 'HorizontalFlip', 'GridDistortion', 'ElasticTransform', 'ShiftScaleRotate'
                         # 'MaskDropout', 'RandomGridShuffle', 'OpticalDistortion', 'no_augmentation', 'Rotate'
                         # albu=['Transpose', 'RandomRotate90', 'VerticalFlip', 'CenterCrop', 'RandomSizedCrop']
-params = OrderedDict(data=['data_teeth'], unet=['UNetHalf'], scale=['[0,1]'],
-                     loss=['MyTverskyBceLoss'], lr=[0.0005], albu=['RandomGamma_RandomBrightnessContrast_ShiftScaleRotate'], albu_prob=[0.2, 0.3])
+params = OrderedDict(unet=['UNet'], scale=['[0,1]'],
+                     loss=['MyTverskyBceLoss'], lr=[0.0005], albu=['RandomGamma_RandomBrightnessContrast'], albu_prob=[0.3])
 # ----------------------------------------------------------------------------------------------------------------------
 #
 # ---------------------------------------------------------------------------------------------------------------------
@@ -81,13 +81,13 @@ runs_count = 0
 
 for run in RunBuilder.get_runs(params):
     if machine == 'DESKTOP-K3R0DFP':
-        my_data_folder = 'teeth_net' + '\\' + run.data
+        my_data_folder = 'teeth_net' + '\\' + run_data
         my_path = os.path.join(my_parent_dir, my_data_folder)
     elif machine == 'siiri-desktop':
         my_parent_dir = os.path.dirname(os.getcwd())
         my_path = os.path.join(my_parent_dir, 'harjoitus_verkko/data')
     else:
-        my_data_folder = 'teeth_net/' + run.data
+        my_data_folder = 'teeth_net/' + run_data
         my_path = os.path.join(my_parent_dir, my_data_folder)
 
     np.random.seed(2020)
@@ -101,7 +101,7 @@ for run in RunBuilder.get_runs(params):
     network.to(device=device)
     optimizer = optim.Adam(network.parameters(), lr=run.lr, betas=(0.9, 0.999), eps=1e-08, weight_decay=0)
     # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.3, last_epoch=-1)
-    train_batch_list, test_batch_list, train_dict = my_data_loader(run.data, test_train_split, data_shuffle=True, batch_size=1)
+    train_batch_list, test_batch_list, train_dict = my_data_loader(run_data, test_train_split, data_shuffle=True, batch_size=1)
     manager.begin_run(run, train_batch_list, test_batch_list, 1)
     my_f1_max_score = 0
     my_f1_score = 0
@@ -266,11 +266,11 @@ for run in RunBuilder.get_runs(params):
         manager.track_test_num_correct(t_epoch_recall, t_epoch_precision, t_epoch_f1_score)
         manager.track_test_true_epoch_metrics(epoch_test_recall, epoch_test_precision, epoch_test_f1_score)
 
-        # if epoch_test_f1_score > my_f1_score:
-        #     my_f1_score = epoch_test_f1_score
-        #     print('model now save, epoch =', epoch)
-        #     print('epoch_test_f1_score:', epoch_test_f1_score)
-        #     torch.save(network, my_save_path + '\\' + 'network.pth')
+        if epoch_test_f1_score > my_f1_score:
+            my_f1_score = epoch_test_f1_score
+            print('model now save, epoch =', epoch)
+            print('epoch_test_f1_score:', epoch_test_f1_score)
+            torch.save(network, my_save_path + '\\' + 'two_augh_network.pth')
         # # scheduler.step()
         manager.end_epoch()
         torch.cuda.empty_cache()
