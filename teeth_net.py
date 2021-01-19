@@ -23,7 +23,7 @@ time_str = time.strftime("%Y-%m-%d_%H-%M")
 # data_folders = ['data', 'data_new', 'data_teeth']   scale=['[0,1]', '[-1,1]']  (1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 0), (1, 0, 1), (0, 1, 1)
 # --------------------------------------------------------------------variables for runs------------------------------
 test_train_split = 5   # 20 % for test, loss_weight=[0.5, 0.9], loss_gamma=[0.5, 1, 2, 5] 'MyDiceLoss', 'MyDiceBCELoss', 'MyIoULoss', 'MyTverskyLoss', 'MyFocalTverskyLoss'
-epoch_numbers = 200     # Gated_UNet  UNetQuarter 'MyFocalLoss', 'MyMixedLoss', 'MyLogDiceLoss', 'MyDiceBCELoss', 'MyLogDiceBCELoss'..... albu_prob=[(1, 1, 1)],
+epoch_numbers = 60     # Gated_UNet  UNetQuarter 'MyFocalLoss', 'MyMixedLoss', 'MyLogDiceLoss', 'MyDiceBCELoss', 'MyLogDiceBCELoss'..... albu_prob=[(1, 1, 1)],
 run_data = 'data_teeth'                       # 'Blur', 'MotionBlur', 'RandomGamma', 'MedianBlur', 'RandomBrightnessContrast'
                         # 'Resize', 'RandomCrop', 'HorizontalFlip', 'GridDistortion', 'ElasticTransform', 'ShiftScaleRotate'
                         # 'MaskDropout', 'RandomGridShuffle', 'OpticalDistortion', 'no_augmentation', 'Rotate'
@@ -99,6 +99,7 @@ for run in RunBuilder.get_runs(params):
     # print(loss_function)
 
     network.to(device=device)
+
     optimizer = optim.Adam(network.parameters(), lr=run.lr, betas=(0.9, 0.999), eps=1e-08, weight_decay=0)
     # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.3, last_epoch=-1)
     train_batch_list, test_batch_list, train_dict = my_data_loader(run_data, test_train_split, data_shuffle=True, batch_size=1)
@@ -106,6 +107,7 @@ for run in RunBuilder.get_runs(params):
     my_f1_max_score = 0
     my_f1_score = 0
     for epoch in range(1, epoch_numbers + 1):
+        network.train()
         print(f'run = {runs_count}, epoch = {epoch}')
         #print('Epoch {}, lr {}'.format(
         #    epoch, optimizer.param_groups[0]['lr']))
@@ -215,13 +217,14 @@ for run in RunBuilder.get_runs(params):
         test_epoch_tp = 0
         test_epoch_fp = 0
         test_epoch_fn = 0
+        network.eval()
         for test_batch in test_batch_list:
             test_patient = train_dict[test_batch][0]
             test_slices = train_dict[test_batch][1]
             test_count += 1
             if test_count == 3 and machine == 'DESKTOP-K3R0DFP':
                 break
-            images = load_my_image_batch(test_batch, train_dict, my_path, test_batch_size, normalize='max')
+            images = load_my_image_batch(test_batch, train_dict, my_path, test_batch_size, normalize=run.scale)
             targets = load_my_target_batch(test_batch, train_dict, my_path, test_batch_size)
 
             images = torch.as_tensor(images, dtype=torch.float32)
@@ -260,7 +263,7 @@ for run in RunBuilder.get_runs(params):
         epoch_test_recall = test_epoch_tp / (test_epoch_tp + test_epoch_fn)
         epoch_test_precision = test_epoch_tp / (test_epoch_tp + test_epoch_fp)
         epoch_test_f1_score = (2 * epoch_test_precision * epoch_test_recall) / (epoch_test_precision + epoch_test_recall)
-
+        print('paskaa')
         manager.track_test_loss(test_epoch_loss, test_count)
 
         manager.track_test_num_correct(t_epoch_recall, t_epoch_precision, t_epoch_f1_score)
@@ -270,7 +273,7 @@ for run in RunBuilder.get_runs(params):
             my_f1_score = epoch_test_f1_score
             print('model now save, epoch =', epoch)
             print('epoch_test_f1_score:', epoch_test_f1_score)
-            torch.save(network, my_save_path + '\\' + 'two_augh_network.pth')
+            torch.save(network, my_save_path + '\\' + 'two_augh_network_60_epoch.pth')
         # # scheduler.step()
         manager.end_epoch()
         torch.cuda.empty_cache()
