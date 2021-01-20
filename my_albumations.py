@@ -58,40 +58,40 @@ def my_data_albumentations2(images, targets, my_albu, my_prop):
     size_x = int(0.7 * image_x_dim)
 
     if my_albu == 'Blur':
-        transformations = albumentations.Blur(blur_limit=5, p=0.2)
+        transformations = albumentations.Blur(blur_limit=5, p=my_prop)
     elif my_albu == 'MotionBlur':
-        transformations = albumentations.MotionBlur(blur_limit=7, p=0.2)
+        transformations = albumentations.MotionBlur(blur_limit=7, p=my_prop)
     elif my_albu == 'RandomGamma':
-        transformations = albumentations.RandomGamma(gamma_limit=(80, 300), p=0.2)
+        transformations = albumentations.RandomGamma(gamma_limit=(80, 300), p=my_prop)
     elif my_albu == 'MedianBlur':
-        transformations = albumentations.MedianBlur(blur_limit=5, p=0.2)
+        transformations = albumentations.MedianBlur(blur_limit=5, p=my_prop)
     elif my_albu == 'RandomBrightnessContrast':
         transformations = albumentations.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.2, p=my_prop)
     elif my_albu == 'Resize':
-        transformations = albumentations.Resize(251, 301, p=0.2)
+        transformations = albumentations.Resize(251, 301, p=my_prop)
     elif my_albu == 'RandomCrop':
-        transformations = albumentations.RandomCrop(size_y, size_x, p=0.2)
+        transformations = albumentations.RandomCrop(size_y, size_x, p=my_prop)
     elif my_albu == 'HorizontalFlip':
-        transformations = albumentations.HorizontalFlip(p=0.2)
+        transformations = albumentations.HorizontalFlip(p=my_prop)
     elif my_albu == 'GridDistortion':
-        transformations = albumentations.GridDistortion(p=0.2)
+        transformations = albumentations.GridDistortion(p=my_prop)
     elif my_albu == 'ElasticTransform':
-        transformations = albumentations.ElasticTransform(p=0.2)
+        transformations = albumentations.ElasticTransform(p=my_prop)
     elif my_albu == 'ShiftScaleRotate':
         transformations = albumentations.ShiftScaleRotate(border_mode=cv2.BORDER_CONSTANT,
                                                           scale_limit=0.3,
                                                           rotate_limit=(10, 30),
-                                                          p=0.2)
+                                                          p=my_prop)
     elif my_albu == 'Rotate':
-        transformations = albumentations.Rotate(limit=90, interpolation=1, border_mode=4, always_apply=False, p=0.2)
+        transformations = albumentations.Rotate(limit=90, interpolation=1, border_mode=4, always_apply=False, p=my_prop)
     elif my_albu == 'OpticalDistortion':
         transformations = albumentations.OpticalDistortion(distort_limit=1.5, shift_limit=1.5, interpolation=1,
-                                                           border_mode=4, always_apply=False, p=0.2)
+                                                           border_mode=4, always_apply=False, p=my_prop)
     elif my_albu == 'RandomGridShuffle':
-        transformations = albumentations.RandomGridShuffle(p=0.2)
+        transformations = albumentations.RandomGridShuffle(p=my_prop)
     elif my_albu == 'MaskDropout':
         transformations = albumentations.MaskDropout(max_objects=3, image_fill_value=0, mask_fill_value=0,
-                                                     always_apply=False, p=0.2)
+                                                     always_apply=False, p=my_prop)
 
     elif my_albu == 'Transpose':
         transformations = albumentations.Transpose(p=my_prop)
