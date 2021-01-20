@@ -115,10 +115,14 @@ def my_data_albumentations3(images, targets, my_albu, my_prop):
     images = np.squeeze(images, axis=0)
     images = images.astype(np.float32)
     targets = np.squeeze(targets, axis=0)
+    image_y_dim = images.shape[0]
+    image_x_dim = images.shape[1]
+    size_y = int(0.7 * image_y_dim)
+    size_x = int(0.7 * image_x_dim)
     my_transformations = None
-    if my_albu == 'RandomGamma_RandomBrightnessContrast':
+    if my_albu == 'RandomGamma_RandomCrop':
         my_transformations = albumentations.Compose([albumentations.RandomGamma(gamma_limit=(80, 300), p=my_prop),
-                             albumentations.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.2, p=my_prop), ])
+                             albumentations.RandomCrop(size_y, size_x, p=my_prop), ])
 
     transformed = my_transformations(image=images, mask=targets)
     trans_image = transformed['image']

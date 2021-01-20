@@ -23,13 +23,13 @@ time_str = time.strftime("%Y-%m-%d_%H-%M")
 # data_folders = ['data', 'data_new', 'data_teeth']   scale=['[0,1]', '[-1,1]']  (1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 0), (1, 0, 1), (0, 1, 1)
 # --------------------------------------------------------------------variables for runs------------------------------
 test_train_split = 5   # 20 % for test, loss_weight=[0.5, 0.9], loss_gamma=[0.5, 1, 2, 5] 'MyDiceLoss', 'MyDiceBCELoss', 'MyIoULoss', 'MyTverskyLoss', 'MyFocalTverskyLoss'
-epoch_numbers = 60     # Gated_UNet  UNetQuarter 'MyFocalLoss', 'MyMixedLoss', 'MyLogDiceLoss', 'MyDiceBCELoss', 'MyLogDiceBCELoss'..... albu_prob=[(1, 1, 1)],
+epoch_numbers = 200     # Gated_UNet  UNetQuarter 'MyFocalLoss', 'MyMixedLoss', 'MyLogDiceLoss', 'MyDiceBCELoss', 'MyLogDiceBCELoss'..... albu_prob=[(1, 1, 1)],
 run_data = 'data_teeth'                       # 'Blur', 'MotionBlur', 'RandomGamma', 'MedianBlur', 'RandomBrightnessContrast'
                         # 'Resize', 'RandomCrop', 'HorizontalFlip', 'GridDistortion', 'ElasticTransform', 'ShiftScaleRotate'
                         # 'MaskDropout', 'RandomGridShuffle', 'OpticalDistortion', 'no_augmentation', 'Rotate'
                         # albu=['Transpose', 'RandomRotate90', 'VerticalFlip', 'CenterCrop', 'RandomSizedCrop']
 params = OrderedDict(unet=['UNetHalf'], scale=['[0,1]'],
-                     loss=['MyTverskyBceLoss'], lr=[0.0005], albu=['Resize', 'RandomCrop', 'HorizontalFlip', 'GridDistortion', 'ElasticTransform', 'ShiftScaleRotate'], albu_prob=[0.35])
+                     loss=['MyTverskyBceLoss'], lr=[0.0004], albu=['RandomGamma_RandomCrop'], albu_prob=[0.20])
 # ----------------------------------------------------------------------------------------------------------------------
 #
 # ---------------------------------------------------------------------------------------------------------------------
@@ -140,9 +140,9 @@ for run in RunBuilder.get_runs(params):
             #     images, targets = my_data_albumentations(images, targets, run.albu_prob)
             #     #print('albu megessä')
             # if run.albu != 'no_augmentation':
-            images, targets = my_data_albumentations2(images, targets, run.albu, run.albu_prob)
+            # images, targets = my_data_albumentations2(images, targets, run.albu, run.albu_prob)
 
-            # images, targets = my_data_albumentations3(images, targets, run.albu, run.albu_prob)
+            images, targets = my_data_albumentations3(images, targets, run.albu, run.albu_prob)
             # print('images shape=', images.shape)
             # print('targets shape=', targets.shape)
 
@@ -269,12 +269,12 @@ for run in RunBuilder.get_runs(params):
         manager.track_test_num_correct(t_epoch_recall, t_epoch_precision, t_epoch_f1_score)
         manager.track_test_true_epoch_metrics(epoch_test_recall, epoch_test_precision, epoch_test_f1_score)
 
-        # if epoch_test_f1_score > my_f1_score:
-        #     my_f1_score = epoch_test_f1_score
-        #     print('model now save, epoch =', epoch)
-        #     print('epoch_test_f1_score:', epoch_test_f1_score)
-        #     torch.save(network, my_save_path + '\\' + 'two_augh_network_60_epoch.pth')
-        # # # scheduler.step()
+        if epoch_test_f1_score > my_f1_score:
+            my_f1_score = epoch_test_f1_score
+            print('model now save, epoch =', epoch)
+            print('epoch_test_f1_score:', epoch_test_f1_score)
+            torch.save(network, my_save_path + '\\' + 'two_augh_network_60_epoch.pth')
+        # # scheduler.step()
         manager.end_epoch()
         torch.cuda.empty_cache()
     manager.end_run()
