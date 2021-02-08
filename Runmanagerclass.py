@@ -113,7 +113,7 @@ class RunManager:
         test_true_f1_score_here = round(self.true_epoch_test_f1_score, 4)
         test_f1_score_here = round(self.epoch_test_f1_score / len(self.test_batch_list), 4)
         # print(len(self.train_batch_list))
-        print('mean-board', train_recall_here, train_precision_here,  train_f1_score_here)
+        #print('mean-board', train_recall_here, train_precision_here,  train_f1_score_here)
         print('epoch-board', train_true_recall_here, train_true_precision_here, train_true_f1_score_here)
         self.tb.add_scalar('Train_Loss', loss_here, self.epoch_count)
         self.tb.add_scalar('Test_Loss', test_loss_here, self.epoch_count)

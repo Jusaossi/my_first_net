@@ -28,11 +28,31 @@ def load_my_image_batch(batch_nro, train_dict, my_path, train_batch_size, normal
             # maxim, minim = np.max(image), np.min(image)
             # print('max, min image is =', maxim, minim)
             # exit()
-        if normalize == '[0,1]':
+        elif normalize == '[0,1]':
             np.clip(image, 500, 3500, out=image)
             image = image - 500
             image = image / 3000
 
+        elif normalize == 'my_shift_and_[0,1]':
+            np.clip(image, 600, 4000, out=image)
+            if patient == 'andy':
+                image = image + 94
+            elif patient == 'teeth1':
+                image = image - 162
+            elif patient == 'teeth2':
+                image = image + 41
+            elif patient == 'patient1':
+                image = image - 115
+            elif patient == 'timo':
+                image = image + 132
+
+            np.clip(image, 800, 3800, out=image)
+            image = image - 800
+            image = image / 3000
+        elif normalize == 'norm':
+            s = np.std(image)
+            mean = np.mean(image)
+            image = (image - mean) / s
         if i == 0:
             # print('train_batch_size', train_batch_size)
             images = np.zeros((train_batch_size, image.shape[0], image.shape[1]))
