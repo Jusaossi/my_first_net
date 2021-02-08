@@ -5,7 +5,7 @@ import albumentations
 import cv2
 
 
-def load_my_image_batch(batch_nro, train_dict, my_path, train_batch_size, normalize):
+def load_my_image_batch(batch_nro, train_dict, my_path, train_batch_size, normalize, lower_cut):
     #print('train_batch_koko', train_batch_size)
     patient = train_dict[batch_nro][0]
     patient_images_folder = patient + '_images'
@@ -34,7 +34,6 @@ def load_my_image_batch(batch_nro, train_dict, my_path, train_batch_size, normal
             image = image / 3000
 
         elif normalize == 'my_shift_and_[0,1]':
-            np.clip(image, 600, 4000, out=image)
             if patient == 'andy':
                 image = image + 94
             elif patient == 'teeth1':
@@ -46,9 +45,9 @@ def load_my_image_batch(batch_nro, train_dict, my_path, train_batch_size, normal
             elif patient == 'timo':
                 image = image + 132
 
-            np.clip(image, 800, 3800, out=image)
-            image = image - 800
-            image = image / 3000
+            np.clip(image, lower_cut, 4000, out=image)
+            image = image - lower_cut
+            image = image / (4000 - lower_cut)
         elif normalize == 'norm':
             s = np.std(image)
             mean = np.mean(image)
