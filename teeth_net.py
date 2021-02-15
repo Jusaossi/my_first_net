@@ -28,9 +28,9 @@ run_data = 'data_teeth'                       # 'Blur', 'MotionBlur', 'RandomGam
                         # 'Resize', 'RandomCrop', 'HorizontalFlip', 'GridDistortion', 'ElasticTransform', 'ShiftScaleRotate'
                         # 'MaskDropout', 'RandomGridShuffle', 'OpticalDistortion', 'no_augmentation', 'Rotate'
                         # albu=['Transpose', 'RandomRotate90', 'VerticalFlip', 'CenterCrop', 'RandomSizedCrop'] albu=['RandomGamma_RandomCrop'], albu_prob=[0.20]
-                        # '[0,1]', '[-1,1]',, 'norm'
-params = OrderedDict(unet=['UNetHalf'], scale=['my_shift_and_[0,1]'], lower_cut=[200, 400, 600, 800],
-                     loss=['MyTverskyBceLoss'], lr=[0.0004])
+                        # '[0,1]', '[-1,1]',, 'norm'  , lower_cut=[200]
+params = OrderedDict(unet=['UNetHalf'], scale=['my_shift_and_[0,1]'],
+                     loss=['MyTverskyBceLoss'], lr=[0.0004], albu=['no_augmentation'], albu_prob=[0.2, 0.4], blur=[3, 5, 7])
 # ----------------------------------------------------------------------------------------------------------------------
 #
 # ---------------------------------------------------------------------------------------------------------------------
@@ -95,7 +95,7 @@ for run in RunBuilder.get_runs(params):
     runs_count += 1
     network = getattr(u_net_versions, run.unet)()
 
-    # print(run)
+    print('run:', run)
     loss_function = getattr(my_loss_classes, run.loss)()
     # print(loss_function)
 
@@ -107,6 +107,7 @@ for run in RunBuilder.get_runs(params):
     manager.begin_run(run, train_batch_list, test_batch_list, 1)
     my_f1_max_score = 0
     my_f1_score = 0
+    
     for epoch in range(1, epoch_numbers + 1):
         network.train()
         print(f'run = {runs_count}, epoch = {epoch}')
@@ -132,7 +133,7 @@ for run in RunBuilder.get_runs(params):
             if batch_count == 5 and machine == 'DESKTOP-K3R0DFP':
                 break
 
-            images = load_my_image_batch(batch, train_dict, my_path, train_batch_size=1, normalize=run.scale, lower_cut=run.lower_cut)
+            images = load_my_image_batch(batch, train_dict, my_path, train_batch_size=1, normalize=run.scale, lower_cut=200)
 
             targets = load_my_target_batch(batch, train_dict, my_path, train_batch_size=1)
             # print('images shape=', images.shape)
@@ -140,8 +141,8 @@ for run in RunBuilder.get_runs(params):
             # if run.albu:
             #     images, targets = my_data_albumentations(images, targets, run.albu_prob)
             #     #print('albu megessä')
-            # if run.albu != 'no_augmentation':
-            # images, targets = my_data_albumentations2(images, targets, run.albu, run.albu_prob)
+            if run.albu != 'no_augmentation':
+                images, targets = my_data_albumentations2(images, targets, run.albu, run.albu_prob, run.blur)
 
             # images, targets = my_data_albumentations3(images, targets, run.albu, run.albu_prob)
             # print('images shape=', images.shape)
@@ -225,7 +226,7 @@ for run in RunBuilder.get_runs(params):
             test_count += 1
             if test_count == 3 and machine == 'DESKTOP-K3R0DFP':
                 break
-            images = load_my_image_batch(test_batch, train_dict, my_path, test_batch_size, normalize=run.scale, lower_cut=run.lower_cut)
+            images = load_my_image_batch(test_batch, train_dict, my_path, test_batch_size, normalize=run.scale, lower_cut=200)
             targets = load_my_target_batch(test_batch, train_dict, my_path, test_batch_size)
 
             images = torch.as_tensor(images, dtype=torch.float32)

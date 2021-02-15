@@ -48,7 +48,7 @@ def my_data_albumentations(images, targets, prop):
     return np.expand_dims(trans_image, axis=0), np.expand_dims(trans_target, axis=0)
 
 
-def my_data_albumentations2(images, targets, my_albu, my_prop):
+def my_data_albumentations2(images, targets, my_albu, my_prop, my_blur):
     images = np.squeeze(images, axis=0)
     images = images.astype(np.float32)
     targets = np.squeeze(targets, axis=0)
@@ -58,7 +58,7 @@ def my_data_albumentations2(images, targets, my_albu, my_prop):
     size_x = int(0.7 * image_x_dim)
 
     if my_albu == 'Blur':
-        transformations = albumentations.Blur(blur_limit=5, p=my_prop)
+        transformations = albumentations.Blur(blur_limit=my_blur, p=my_prop)
     elif my_albu == 'MotionBlur':
         transformations = albumentations.MotionBlur(blur_limit=7, p=my_prop)
     elif my_albu == 'RandomGamma':
